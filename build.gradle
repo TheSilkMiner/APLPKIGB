@@ -1,0 +1,141 @@
+plugins {
+    id 'groovy'
+    id 'maven-publish'
+    id 'com.github.ben-manes.versions' version '0.38.0'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'net.minecraftforge.gradle' version '4.1.12'
+    id 'org.cadixdev.licenser' version '0.6.0'
+}
+
+static String getGitCommit() {
+    def proc = 'git rev-parse --short HEAD'.execute()
+    proc.waitFor()
+    return proc.exitValue()? "ERROR(${proc.exitValue()})" : proc.text.trim()
+}
+
+def groovy(def name) {
+    return [
+            group: 'org.codehaus.groovy',
+            name: name == 'stdlib'? 'groovy' : "groovy-${name}",
+            version: project.ext.groovyVersion
+    ]
+}
+
+version = '1.0.0'
+group = 'net.thesilkminer.mc.austinpowers'
+archivesBaseName = 'austin-powers-language-adapter-keeping-it-groovy-baby'
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(JavaVersion.VERSION_1_8.majorVersion)
+}
+
+license {
+    header(project.file('NOTICE'))
+
+    ext['year'] = Calendar.getInstance().get(Calendar.YEAR)
+    ext['name'] = 'TheSilkMiner'
+    ext['app'] = 'APLP: KIGB'
+}
+
+minecraft {
+    mappings channel: 'official', version: '1.16.5'
+
+    runs {
+        client {
+            workingDirectory project.file('run_client')
+
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                austinpowerslanguageadapterkeepingitgroovybaby {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run_server')
+
+            property 'forge.logging.console.level', 'debug'
+
+            args 'nogui'
+
+            mods {
+                austinpowerslanguageadapterkeepingitgroovybaby {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+configurations {
+    yeet {}
+    implementation.extendsFrom(shadow)
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    minecraft group: 'net.minecraftforge', name: 'forge', version: '1.16.5-36.1.23'
+    shadow groovy('stdlib')
+    yeet groovy('ant')
+    shadow groovy('astbuilder')
+    yeet groovy('cli-picocli')
+    yeet groovy('console')
+    shadow groovy('datetime')
+    yeet groovy('docgenerator')
+    yeet groovy('groovydoc')
+    yeet groovy('groovysh')
+    yeet groovy('jmx')
+    yeet groovy('json')
+    shadow groovy('jsr223')
+    shadow groovy('macro')
+    shadow groovy('nio')
+    yeet groovy('servlet')
+    yeet groovy('sql')
+    yeet groovy('swing')
+    shadow groovy('templates')
+    yeet groovy('test')
+    yeet groovy('test-junit5')
+    yeet groovy('testng')
+    yeet groovy('xml')
+}
+
+jar {
+    archiveClassifier = 'thin'
+    manifest {
+        attributes([
+            "Specification-Title": "austin-powers-language-adapter-keeping-it-groovy-baby",
+            "Specification-Vendor": "TheSilkMiner",
+            "Specification-Version": "1",
+            "Implementation-Title": project.name,
+            "Implementation-Version": "${version}",
+            "Implementation-Vendor" : "TheSilkMiner",
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+            "GitCommit": getGitCommit()
+        ])
+    }
+}
+
+shadowJar {
+    archiveClassifier = ''
+    configurations = [project.configurations.shadow]
+}
+
+reobf {
+    shadowJar {}
+}
+
+jar.finalizedBy('reobfJar')
+shadowJar.finalizedBy('reobfShadowJar')
+
+shadowJar.dependsOn('reobfJar')
+build.dependsOn('shadowJar')
+
+wrapper {
+    gradleVersion = '6.8.1'
+    distributionType = Wrapper.DistributionType.ALL
+}
