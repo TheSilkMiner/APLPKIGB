@@ -1,3 +1,3 @@
-# Austin Powers' Language Adapter: Keeping It Groovy Baby
+# Austin Powers' Language Provider: Keeping It Groovy Baby
 
-The Grooviest language adapter in Forgeland
+The Grooviest language provider in Forgeland

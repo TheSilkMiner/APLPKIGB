@@ -23,7 +23,7 @@ def groovy(def name) {
 
 version = '1.0.0'
 group = 'net.thesilkminer.mc.austinpowers'
-archivesBaseName = 'austin-powers-language-adapter-keeping-it-groovy-baby'
+archivesBaseName = 'austin-powers-language-provider-keeping-it-groovy-baby'
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(JavaVersion.VERSION_1_8.majorVersion)
@@ -47,7 +47,7 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
 
             mods {
-                austinpowerslanguageadapterkeepingitgroovybaby {
+                austinpowerslanguageproviderkeepingitgroovybaby {
                     source sourceSets.main
                 }
             }
@@ -61,7 +61,7 @@ minecraft {
             args 'nogui'
 
             mods {
-                austinpowerslanguageadapterkeepingitgroovybaby {
+                austinpowerslanguageproviderkeepingitgroovybaby {
                     source sourceSets.main
                 }
             }
@@ -108,7 +108,7 @@ jar {
     archiveClassifier = 'thin'
     manifest {
         attributes([
-            "Specification-Title": "austin-powers-language-adapter-keeping-it-groovy-baby",
+            "Specification-Title": "austin-powers-language-provider-keeping-it-groovy-baby",
             "Specification-Vendor": "TheSilkMiner",
             "Specification-Version": "1",
             "Implementation-Title": project.name,
