@@ -1,0 +1,30 @@
+modLoader="austinpowers"
+loaderVersion="[1,)"
+license="MIT License"
+issueTrackerURL="https://github.com/TheSilkMiner/APLPKIGB/issues"
+showAsResourcePack=false
+
+[[mods]]
+    modId="austinpowerslanguageproviderkeepingitgroovybaby"
+    mojo="net.thesilkminer.mc.austinpowers.AustinPowersLanguageProvider"
+    version="1.0.0"
+    displayName="Austin Powers' Language Provider: Keeping It Groovy Baby"
+    credits="<>"
+    authors="TheSilkMiner"
+    description='''
+<>
+    '''
+
+[[dependencies.austinpowerslanguageproviderkeepingitgroovybaby]]
+    modId="forge"
+    mandatory=true
+    versionRange="[36,)"
+    ordering="NONE"
+    side='BOTH'
+
+[[dependencies.austinpowerslanguageproviderkeepingitgroovybaby]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.16.5,)"
+    ordering="NONE"
+    side='BOTH'
