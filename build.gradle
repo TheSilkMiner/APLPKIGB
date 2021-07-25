@@ -3,8 +3,8 @@ plugins {
     id 'maven-publish'
     id 'com.github.ben-manes.versions' version '0.38.0'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
-    id 'net.minecraftforge.gradle' version '4.1.12'
-    id 'org.cadixdev.licenser' version '0.6.0'
+    id 'net.minecraftforge.gradle' version '5.1.+'
+    id 'org.cadixdev.licenser' version '0.6.1'
 }
 
 static String getGitCommit() {
@@ -17,7 +17,8 @@ def groovy(def name) {
     return [
             group: 'org.codehaus.groovy',
             name: name == 'stdlib'? 'groovy' : "groovy-${name}",
-            version: project.ext.groovyVersion
+            version: project.ext.groovyVersion,
+            classifier: 'indy'
     ]
 }
 
@@ -26,7 +27,7 @@ group = 'net.thesilkminer.mc.austinpowers'
 archivesBaseName = 'austin-powers-language-provider-keeping-it-groovy-baby'
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(JavaVersion.VERSION_1_8.majorVersion)
+    toolchain.languageVersion = JavaLanguageVersion.of(JavaVersion.VERSION_16.majorVersion)
 }
 
 license {
@@ -38,7 +39,7 @@ license {
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.16.5'
+    mappings channel: 'official', version: '1.17.1'
 
     runs {
         client {
@@ -69,9 +70,14 @@ minecraft {
     }
 }
 
+compileGroovy {
+    groovyOptions.optimizationOptions.indy = true
+}
+
 configurations {
+    shade {}
     yeet {}
-    implementation.extendsFrom(shadow)
+    implementation.extendsFrom(shade)
 }
 
 repositories {
@@ -79,25 +85,25 @@ repositories {
 }
 
 dependencies {
-    minecraft group: 'net.minecraftforge', name: 'forge', version: '1.16.5-36.1.23'
-    shadow groovy('stdlib')
+    minecraft group: 'net.minecraftforge', name: 'forge', version: '1.17.1-37.0.1'
+    shade groovy('stdlib')
     yeet groovy('ant')
-    shadow groovy('astbuilder')
+    shade groovy('astbuilder')
     yeet groovy('cli-picocli')
     yeet groovy('console')
-    shadow groovy('datetime')
+    shade groovy('datetime')
     yeet groovy('docgenerator')
     yeet groovy('groovydoc')
     yeet groovy('groovysh')
     yeet groovy('jmx')
     yeet groovy('json')
-    shadow groovy('jsr223')
-    shadow groovy('macro')
-    shadow groovy('nio')
+    shade groovy('jsr223')
+    shade groovy('macro')
+    shade groovy('nio')
     yeet groovy('servlet')
     yeet groovy('sql')
     yeet groovy('swing')
-    shadow groovy('templates')
+    shade groovy('templates')
     yeet groovy('test')
     yeet groovy('test-junit5')
     yeet groovy('testng')
@@ -112,17 +118,19 @@ jar {
             "Specification-Vendor": "TheSilkMiner",
             "Specification-Version": "1",
             "Implementation-Title": project.name,
-            "Implementation-Version": "${version}",
+            "Implementation-Version": archiveVersion.get(),
             "Implementation-Vendor" : "TheSilkMiner",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-            "GitCommit": getGitCommit()
+            "GitCommit": getGitCommit(),
+            "FMLModType": "LANGPROVIDER",
+            "Automatic-Module-Name": "net.thesilkminer.mc.aplpkigb"
         ])
     }
 }
 
 shadowJar {
     archiveClassifier = ''
-    configurations = [project.configurations.shadow]
+    configurations = [project.configurations.shade]
 }
 
 reobf {
@@ -136,6 +144,6 @@ shadowJar.dependsOn('reobfJar')
 build.dependsOn('shadowJar')
 
 wrapper {
-    gradleVersion = '6.8.1'
+    gradleVersion = '7.1'
     distributionType = Wrapper.DistributionType.ALL
 }

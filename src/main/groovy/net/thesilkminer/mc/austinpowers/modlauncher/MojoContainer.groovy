@@ -32,8 +32,8 @@ import net.minecraftforge.fml.Logging
 import net.minecraftforge.fml.ModContainer
 import net.minecraftforge.fml.ModLoadingException
 import net.minecraftforge.fml.ModLoadingStage
-import net.minecraftforge.fml.config.ModConfig
-import net.minecraftforge.fml.event.lifecycle.IModBusEvent
+import net.minecraftforge.fml.config.IConfigEvent
+import net.minecraftforge.fml.event.IModBusEvent
 import net.minecraftforge.forgespi.language.IModInfo
 import net.minecraftforge.forgespi.language.ModFileScanData
 import net.thesilkminer.mc.austinpowers.api.Mole
@@ -57,9 +57,9 @@ class MojoContainer extends ModContainer {
 
     private Object mojo
 
-    MojoContainer(final IModInfo info, final String className, final ClassLoader loader, final ModFileScanData scanData) {
+    MojoContainer(final IModInfo info, final String className, final ModFileScanData scanData, final ModuleLayer layer) {
         super(info)
-        LOGGER.debug(Logging.LOADING,'Creating Mojo container for {} on classloader pair <{}, {}>', className, loader, this.class.classLoader)
+        LOGGER.debug(Logging.LOADING,'Creating Mojo container for {} on classloader {} with layer {}', className, this.class.classLoader, layer)
 
         this.scanData = scanData
         this.mojoBus = BusBuilder.builder()
@@ -69,11 +69,12 @@ class MojoContainer extends ModContainer {
                 .build()
 
         this.activityMap[ModLoadingStage.CONSTRUCT] = this.&constructMojo
-        this.configHandler = Optional.of(this.mojoBus.&post as Consumer<ModConfig.ModConfigEvent>)
+        this.configHandler = Optional.of(this.&postConfigEvent as Consumer<IConfigEvent>)
         this.contextExtension = { -> LOADING_CONTEXTS.computeIfAbsent(this, MojoMole.&new) } // Oh yes, lambdas...
 
         try {
-            this.mojoClass = Class.forName(className, true, loader)
+            def module = layer.findModule(info.owningFile.moduleName()).orElseThrow()
+            this.mojoClass = Class.forName(module, className)
             LOGGER.trace(Logging.LOADING, 'Loaded class {} on class loader {}: time to get Groovy', this.mojoClass.name, this.mojoClass.classLoader)
         } catch (final Throwable t) {
             LOGGER.fatal(Logging.LOADING, "An error occurred while attempting to load class ${ -> className }", t)
@@ -83,7 +84,7 @@ class MojoContainer extends ModContainer {
 
     @Override
     boolean matches(final Object mod) {
-        return mod === this.mojo
+        return mod != null && mod.is(this.mojo)
     }
 
     @Override
@@ -113,5 +114,9 @@ class MojoContainer extends ModContainer {
             LOGGER.fatal(Logging.LOADING, "Failed to create mojo from class ${ -> this.mojoClass.name } for mojo ${ -> this.modId }", t)
             throw new ModLoadingException(this.modInfo, ModLoadingStage.CONSTRUCT, MOD_ERROR, t, this.mojoClass)
         }
+    }
+
+    private void postConfigEvent(final IConfigEvent event) {
+        this.mojoBus.post(event.self())
     }
 }

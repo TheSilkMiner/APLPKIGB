@@ -18,13 +18,13 @@ showAsResourcePack=false
 [[dependencies.austinpowerslanguageproviderkeepingitgroovybaby]]
     modId="forge"
     mandatory=true
-    versionRange="[36,)"
+    versionRange="[37,)"
     ordering="NONE"
     side='BOTH'
 
 [[dependencies.austinpowerslanguageproviderkeepingitgroovybaby]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.16.5,)"
+    versionRange="[1.17.1,)"
     ordering="NONE"
     side='BOTH'

@@ -49,12 +49,13 @@ class MojoLanguageLoader implements IModLanguageProvider.IModLanguageLoader {
 
     @PackageScope
     MojoLanguageLoader(final String className, final String mojoId) {
+        LOGGER.error("IT LIVES")
         this.className = className
         this.mojoId = mojoId
     }
 
     @Override
-    <T> T loadMod(final IModInfo info, final ClassLoader modClassLoader, final ModFileScanData modFileScanResults) {
+    <T> T loadMod(final IModInfo info, final ModFileScanData modFileScanResults, final ModuleLayer layer) {
         // cpw and his love for over-complicated stuff
         // oh well, let's have neat class-loader separation
         def threadLoader = Thread.currentThread().getContextClassLoader()
@@ -79,8 +80,8 @@ class MojoLanguageLoader implements IModLanguageProvider.IModLanguageLoader {
             if (mojoContainer.classLoader != threadLoader) {
                 LOGGER.error(Logging.LOADING, 'Attempting to load MojoContainer from classloader {} actually resulted in {}', threadLoader, mojoContainer.classLoader)
             }
-            def mojoConstructor = mojoContainer.getConstructor(IModInfo, String, ClassLoader, ModFileScanData)
-            mojoConstructor.newInstance(info, this.className, modClassLoader, modFileScanResults) as T
+            def mojoConstructor = mojoContainer.getConstructor(IModInfo, String, ModFileScanData, ModuleLayer)
+            mojoConstructor.newInstance(info, this.className, modFileScanResults, layer) as T
         } catch (final InvocationTargetException e) {
             LOGGER.fatal(Logging.LOADING, "A fatal error occurred while attempting to build mod ${ -> this.mojoId }", e)
 
