@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package net.thesilkminer.mc.austinpowers.modlauncher
+package net.thesilkminer.mc.austinpowers
 
 import groovy.transform.PackageScope
 import net.minecraftforge.fml.Logging
@@ -36,7 +36,7 @@ import java.lang.reflect.InvocationTargetException
 
 @PackageScope
 class MojoLanguageLoader implements IModLanguageProvider.IModLanguageLoader {
-    @SuppressWarnings('SpellCheckingInspection') private static final String MOJO_CONTAINER = 'net.thesilkminer.mc.austinpowers.modlauncher.MojoContainer'
+    @SuppressWarnings('SpellCheckingInspection') private static final String MOJO_CONTAINER = 'net.thesilkminer.mc.austinpowers.MojoContainer'
     @SuppressWarnings('SpellCheckingInspection') private static final String MOD_LOADING_EXCEPTION = 'net.minecraftforge.fml.ModLoadingException'
     @SuppressWarnings('SpellCheckingInspection') private static final String MOD_LOADING_STAGE = 'net.minecraftforge.fml.ModLoadingStage'
 

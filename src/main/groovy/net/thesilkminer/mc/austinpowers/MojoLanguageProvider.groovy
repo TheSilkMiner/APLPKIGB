@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package net.thesilkminer.mc.austinpowers.modlauncher
+package net.thesilkminer.mc.austinpowers
 
 import net.minecraftforge.fml.Logging
 import net.minecraftforge.forgespi.language.IConfigurable

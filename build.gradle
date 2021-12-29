@@ -27,7 +27,7 @@ group = 'net.thesilkminer.mc.austinpowers'
 archivesBaseName = 'austin-powers-language-provider-keeping-it-groovy-baby'
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(JavaVersion.VERSION_16.majorVersion)
+    toolchain.languageVersion = JavaLanguageVersion.of(JavaVersion.VERSION_17.majorVersion)
 }
 
 license {
@@ -39,7 +39,7 @@ license {
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.17.1'
+    mappings channel: 'official', version: '1.18.1'
 
     runs {
         client {
@@ -50,6 +50,9 @@ minecraft {
             mods {
                 austinpowerslanguageproviderkeepingitgroovybaby {
                     source sourceSets.main
+                }
+                mojotest {
+                    source sourceSets.test
                 }
             }
         }
@@ -64,6 +67,9 @@ minecraft {
             mods {
                 austinpowerslanguageproviderkeepingitgroovybaby {
                     source sourceSets.main
+                }
+                mojotest {
+                    source sourceSets.test
                 }
             }
         }
@@ -85,7 +91,7 @@ repositories {
 }
 
 dependencies {
-    minecraft group: 'net.minecraftforge', name: 'forge', version: '1.17.1-37.0.1'
+    minecraft group: 'net.minecraftforge', name: 'forge', version: '1.18.1-39.0.9'
     shade groovy('stdlib')
     yeet groovy('ant')
     shade groovy('astbuilder')
@@ -144,6 +150,6 @@ shadowJar.dependsOn('reobfJar')
 build.dependsOn('shadowJar')
 
 wrapper {
-    gradleVersion = '7.1'
+    gradleVersion = '7.3.3'
     distributionType = Wrapper.DistributionType.ALL
 }

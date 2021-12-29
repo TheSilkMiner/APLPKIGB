@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package net.thesilkminer.mc.austinpowers.modlauncher
+package net.thesilkminer.mc.austinpowers
 
 import net.minecraftforge.eventbus.EventBusErrorMessage
 import net.minecraftforge.eventbus.api.BusBuilder

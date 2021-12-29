@@ -24,14 +24,26 @@
 
 package net.thesilkminer.mc.austinpowers
 
+import groovy.transform.PackageScope
+import net.minecraftforge.eventbus.api.IEventBus
 import net.thesilkminer.mc.austinpowers.api.Mole
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.Logger
 
-class AustinPowersLanguageProvider {
-    private static final Logger LOGGER = LogManager.getLogger(AustinPowersLanguageProvider)
+@PackageScope
+class MojoMole implements Mole {
+    private final MojoContainer mojoContainer
 
-    AustinPowersLanguageProvider(final Mole mole) {
-        LOGGER.info("Successfully loaded Groovy mod with mole '${mole}'")
+    @PackageScope
+    MojoMole(final MojoContainer container) {
+        this.mojoContainer = container
+    }
+
+    @Override
+    IEventBus getMojoBus() {
+        return this.mojoContainer.mojoBus
+    }
+
+    @Override
+    String toString() {
+        return "Mole{${this.mojoContainer.modId}}"
     }
 }

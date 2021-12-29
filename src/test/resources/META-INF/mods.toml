@@ -1,0 +1,15 @@
+modLoader="austinpowers"
+loaderVersion="[1,)"
+license="MIT License"
+issueTrackerURL="https://github.com/TheSilkMiner/APLPKIGB/issues"
+showAsResourcePack=false
+
+[[mods]]
+modId="mojotest"
+mojo="net.thesilkminer.mc.austinpowers.mojotest.AustinPowersMojoTest"
+version="1.0.0"
+displayName="Austin Powers' Language Provider: Keeping It Groovy Baby"
+authors="TheSilkMiner"
+description='''
+Not that it matters, since this will not be packaged into the JAR anyway
+'''
