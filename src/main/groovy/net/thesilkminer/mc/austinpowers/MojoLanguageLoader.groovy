@@ -49,7 +49,6 @@ class MojoLanguageLoader implements IModLanguageProvider.IModLanguageLoader {
 
     @PackageScope
     MojoLanguageLoader(final String className, final String mojoId) {
-        LOGGER.error("IT LIVES")
         this.className = className
         this.mojoId = mojoId
     }
