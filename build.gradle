@@ -76,10 +76,6 @@ minecraft {
     }
 }
 
-compileGroovy {
-    groovyOptions.optimizationOptions.indy = true
-}
-
 configurations {
     shade {}
     yeet {}
@@ -139,15 +135,27 @@ shadowJar {
     configurations = [project.configurations.shade]
 }
 
+task testJar(type: Jar) {
+    from sourceSets.test.output
+    archiveClassifier = 'test'
+}
+
 reobf {
     shadowJar {}
+    testJar {}
+}
+
+tasks.withType(GroovyCompile).configureEach {
+    groovyOptions.optimizationOptions.indy = true
 }
 
 jar.finalizedBy('reobfJar')
 shadowJar.finalizedBy('reobfShadowJar')
+testJar.finalizedBy('reobfTestJar')
 
 shadowJar.dependsOn('reobfJar')
-build.dependsOn('shadowJar')
+testJar.dependsOn('shadowJar')
+build.dependsOn('testJar')
 
 wrapper {
     gradleVersion = '7.3.3'
