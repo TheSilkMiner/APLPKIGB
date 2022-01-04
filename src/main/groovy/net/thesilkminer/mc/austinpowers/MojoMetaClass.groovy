@@ -30,12 +30,12 @@ import groovy.transform.PackageScope
 class MojoMetaClass extends DelegatingMetaClass {
 
     private static final OVERRIDDEN_PROPERTIES = [
-            'mojoBus' : MojoMetaClass.&obtainMojoBus,
-            'forgeBus' : MojoMetaClass.&obtainForgeBus
+            'mojoBus' : MojoMetaClass::obtainMojoBus,
+            'forgeBus' : MojoMetaClass::obtainForgeBus
     ]
 
     private static final OVERRIDDEN_METHODS = [
-            'toString' : MojoMetaClass.&mojoToString
+            'toString' : MojoMetaClass::mojoToString
     ]
 
     private static final FORGE_BUS = {

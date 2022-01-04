@@ -82,11 +82,11 @@ class MojoLanguageLoader implements IModLanguageProvider.IModLanguageLoader {
             def mojoConstructor = mojoContainer.getConstructor(IModInfo, String, ModFileScanData, ModuleLayer)
             mojoConstructor.newInstance(info, this.className, modFileScanResults, layer) as T
         } catch (final InvocationTargetException e) {
-            LOGGER.fatal(Logging.LOADING, "A fatal error occurred while attempting to build mod ${ -> this.mojoId }", e)
+            LOGGER.fatal(Logging.LOADING, "A fatal error occurred while attempting to build mod ${this.mojoId}", e)
 
             throwModLoadingException('CONSTRUCT', e, LOADING_FAILED)
         } catch (NoSuchMethodException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-            LOGGER.fatal(Logging.LOADING, "A fatal error has occurred while attempting to load the MojoContainer for mod ${ -> this.mojoId }", e)
+            LOGGER.fatal(Logging.LOADING, "A fatal error has occurred while attempting to load the MojoContainer for mod ${this.mojoId}", e)
 
             throwModLoadingException('CONSTRUCT', e, LOADING_FAILED)
         }

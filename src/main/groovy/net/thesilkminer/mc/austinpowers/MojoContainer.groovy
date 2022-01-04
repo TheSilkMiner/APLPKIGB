@@ -67,16 +67,16 @@ class MojoContainer extends ModContainer {
                 .markerType(IModBusEvent)
                 .build()
 
-        this.activityMap[ModLoadingStage.CONSTRUCT] = this.&constructMojo
-        this.configHandler = Optional.of(this.&postConfigEvent as Consumer<IConfigEvent>)
-        this.contextExtension = { -> LOADING_CONTEXTS.computeIfAbsent(this, { this.buildMetaClass() }) } // Oh yes, lambdas...
+        this.activityMap[ModLoadingStage.CONSTRUCT] = this::constructMojo
+        this.configHandler = Optional.of(this::postConfigEvent as Consumer<IConfigEvent>)
+        this.contextExtension = () -> LOADING_CONTEXTS.computeIfAbsent(this, { this.buildMetaClass() }) // Oh yes, lambdas...
 
         try {
             def module = layer.findModule(info.owningFile.moduleName()).orElseThrow()
             this.mojoClass = Class.forName(module, className)
             LOGGER.trace(Logging.LOADING, 'Loaded class {} on class loader {}: time to get Groovy', this.mojoClass.name, this.mojoClass.classLoader)
         } catch (final Throwable t) {
-            LOGGER.fatal(Logging.LOADING, "An error occurred while attempting to load class ${ -> className }", t)
+            LOGGER.fatal(Logging.LOADING, "An error occurred while attempting to load class ${className}", t)
             throw new ModLoadingException(info, ModLoadingStage.CONSTRUCT, CLASS_ERROR, t)
         }
     }
@@ -98,7 +98,7 @@ class MojoContainer extends ModContainer {
             this.mojoBus.post(e)
             LOGGER.trace(Logging.LOADING, 'Fired event {} for mojo {}', e, this.modId)
         } catch (Throwable t) {
-            LOGGER.fatal(Logging.LOADING,"Caught exception in mojo '${ -> this.modId }' during event dispatch for ${ -> e }", t)
+            LOGGER.fatal(Logging.LOADING,"Caught exception in mojo '${this.modId}' during event dispatch for ${e}", t)
             throw new ModLoadingException(this.modInfo, this.modLoadingStage, EVENT_ERROR, t)
         }
     }
@@ -112,7 +112,7 @@ class MojoContainer extends ModContainer {
             this.mojo.metaClass = this.mojoClass.metaClass
             LOGGER.trace(Logging.LOADING, 'Successfully loaded mojo {} and injected metaclass', this.modId)
         } catch (final Throwable t) {
-            LOGGER.fatal(Logging.LOADING, "Failed to create mojo from class ${ -> this.mojoClass.name } for mojo ${ -> this.modId }", t)
+            LOGGER.fatal(Logging.LOADING, "Failed to create mojo from class ${this.mojoClass.name} for mojo ${this.modId}", t)
             throw new ModLoadingException(this.modInfo, ModLoadingStage.CONSTRUCT, MOD_ERROR, t, this.mojoClass)
         }
     }
