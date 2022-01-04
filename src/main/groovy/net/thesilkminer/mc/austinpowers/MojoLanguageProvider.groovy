@@ -24,6 +24,7 @@
 
 package net.thesilkminer.mc.austinpowers
 
+import groovy.transform.CompileStatic
 import net.minecraftforge.fml.Logging
 import net.minecraftforge.forgespi.language.IConfigurable
 import net.minecraftforge.forgespi.language.ILifecycleEvent
@@ -42,6 +43,7 @@ class MojoLanguageProvider implements IModLanguageProvider {
 
     private static final Logger LOGGER = LogManager.getLogger(MojoLanguageProvider)
 
+    @CompileStatic
     @Override
     String name() { NAME }
 

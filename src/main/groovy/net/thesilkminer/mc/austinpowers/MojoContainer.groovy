@@ -24,6 +24,7 @@
 
 package net.thesilkminer.mc.austinpowers
 
+import groovy.transform.CompileStatic
 import net.minecraftforge.eventbus.EventBusErrorMessage
 import net.minecraftforge.eventbus.api.BusBuilder
 import net.minecraftforge.eventbus.api.Event
@@ -41,6 +42,7 @@ import org.apache.logging.log4j.Logger
 
 import java.util.function.Consumer
 
+@CompileStatic
 class MojoContainer extends ModContainer {
     @SuppressWarnings('SpellCheckingInspection') private static final String CLASS_ERROR = 'fml.modloading.failedtoloadmodclass'
     @SuppressWarnings('SpellCheckingInspection') private static final String MOD_ERROR = 'fml.modloading.failedtoloadmod'

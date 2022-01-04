@@ -24,6 +24,7 @@
 
 package net.thesilkminer.mc.austinpowers
 
+import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import net.minecraftforge.fml.Logging
 import net.minecraftforge.forgespi.language.IModInfo
@@ -92,6 +93,7 @@ class MojoLanguageLoader implements IModLanguageProvider.IModLanguageLoader {
         }
     }
 
+    @CompileStatic
     @Override
     String toString() {
         return "${this.mojoId}@${this.className}"
