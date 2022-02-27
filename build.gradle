@@ -1,8 +1,8 @@
 plugins {
     id 'groovy'
     id 'maven-publish'
-    id 'com.github.ben-manes.versions' version '0.38.0'
-    id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'com.github.ben-manes.versions' version '0.42.0'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'net.minecraftforge.gradle' version '5.1.+'
     id 'org.cadixdev.licenser' version '0.6.1'
 }
@@ -47,6 +47,10 @@ minecraft {
 
             property 'forge.logging.console.level', 'debug'
 
+            lazyToken('minecraft_classpath') {
+                configurations.shade.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
+            }
+
             mods {
                 austinpowerslanguageproviderkeepingitgroovybaby {
                     source sourceSets.main
@@ -63,6 +67,10 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
 
             args 'nogui'
+
+            lazyToken('minecraft_classpath') {
+                configurations.shade.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
+            }
 
             mods {
                 austinpowerslanguageproviderkeepingitgroovybaby {
@@ -87,29 +95,42 @@ repositories {
 }
 
 dependencies {
-    minecraft group: 'net.minecraftforge', name: 'forge', version: '1.18.1-39.0.9'
+    minecraft group: 'net.minecraftforge', name: 'forge', version: '1.18.1-39.0.88'
     shade groovy('stdlib')
-    yeet groovy('ant')
+    shade groovy('ant')
     shade groovy('astbuilder')
-    yeet groovy('cli-picocli')
+    yeet groovy('backports-compat-23')
+    yeet groovy('binary')
+    yeet groovy('bom')
+    yeet groovy('bsf')
+    shade groovy('cli-picocli')
+    yeet groovy('cli-commons')
+    shade groovy('contracts')
     yeet groovy('console')
     shade groovy('datetime')
+    shade groovy('dateutil')
     yeet groovy('docgenerator')
+    yeet groovy('ginq')
     yeet groovy('groovydoc')
     yeet groovy('groovysh')
+    yeet groovy('jaxb')
     yeet groovy('jmx')
-    yeet groovy('json')
+    shade groovy('json')
     shade groovy('jsr223')
     shade groovy('macro')
+    shade groovy('macro-library')
     shade groovy('nio')
     yeet groovy('servlet')
     yeet groovy('sql')
     yeet groovy('swing')
     shade groovy('templates')
-    yeet groovy('test')
-    yeet groovy('test-junit5')
+    shade groovy('test')
+    shade groovy('test-junit5')
     yeet groovy('testng')
-    yeet groovy('xml')
+    shade groovy('toml')
+    shade groovy('typecheckers')
+    shade groovy('xml')
+    shade groovy('yaml')
 }
 
 jar {
@@ -158,6 +179,6 @@ testJar.dependsOn('shadowJar')
 build.dependsOn('testJar')
 
 wrapper {
-    gradleVersion = '7.3.3'
+    gradleVersion = '7.4'
     distributionType = Wrapper.DistributionType.ALL
 }
