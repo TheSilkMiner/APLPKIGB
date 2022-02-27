@@ -192,7 +192,7 @@ dependencies {
     shade groovy('datetime')
     shade groovy('dateutil')
     yeet groovy('docgenerator')
-    yeet groovy('ginq')
+    shade groovy('ginq')
     yeet groovy('groovydoc')
     yeet groovy('groovysh')
     yeet groovy('jaxb')
