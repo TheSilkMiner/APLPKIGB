@@ -24,6 +24,7 @@
 
 package net.thesilkminer.mc.austin
 
+import groovy.transform.CompileStatic
 import net.minecraftforge.fml.Logging
 import net.minecraftforge.forgespi.language.IConfigurable
 import net.minecraftforge.forgespi.language.ILifecycleEvent
@@ -42,8 +43,11 @@ class MojoLanguageProvider implements IModLanguageProvider {
 
     private static final Logger LOGGER = LogManager.getLogger(MojoLanguageProvider)
 
+    @CompileStatic
     @Override
-    String name() { NAME }
+    String name() {
+        NAME
+    }
 
     @Override
     Consumer<ModFileScanData> getFileVisitor() {
@@ -71,6 +75,7 @@ class MojoLanguageProvider implements IModLanguageProvider {
         }
     }
 
+    @CompileStatic
     @Override
     <R extends ILifecycleEvent<R>> void consumeLifecycleEvent(final Supplier<R> consumeEvent) {}
 
