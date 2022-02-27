@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package net.thesilkminer.mc.austinpowers
+package net.thesilkminer.mc.austin
 
 import net.minecraftforge.fml.Logging
 import net.minecraftforge.forgespi.language.IConfigurable
@@ -38,7 +38,7 @@ import java.util.function.Supplier
 import java.util.stream.Collectors
 
 class MojoLanguageProvider implements IModLanguageProvider {
-    @SuppressWarnings('SpellCheckingInspection') private static final String NAME = 'austinpowers'
+    @SuppressWarnings('SpellCheckingInspection') private static final String NAME = 'aplp'
 
     private static final Logger LOGGER = LogManager.getLogger(MojoLanguageProvider)
 

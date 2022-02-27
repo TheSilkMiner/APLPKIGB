@@ -22,17 +22,27 @@
  * SOFTWARE.
  */
 
-package net.thesilkminer.mc.austinpowers.mojotest
+package net.thesilkminer.mc.austin.mojotest
 
+import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
-class AustinPowersMojoTest {
-    private static final Logger LOGGER = LogManager.getLogger(AustinPowersMojoTest)
+class AustinPowerfulMojoTest {
+    private static final Logger LOGGER = LogManager.getLogger(AustinPowerfulMojoTest)
 
-    AustinPowersMojoTest() {
-        LOGGER.info('Successfully loaded Groovy mod "{}"', this.toString())
+    AustinPowerfulMojoTest() {
+        LOGGER.info('Successfully loaded Groovy mojo "{}"', this.toString())
         LOGGER.info('Say hello to my meta-class {}', this.metaClass)
         LOGGER.info('Buses are mojo "{}" and Forge "{}"', mojoBus, forgeBus)
+
+        mojoBus.register(this)
+    }
+
+    @SubscribeEvent
+    def onCommon(final FMLCommonSetupEvent event) {
+        LOGGER.info('Successfully received event {} on mojoBus', event)
+        LOGGER.info('Our meta-class is {} and we are {}', this.metaClass, this.toString())
     }
 }

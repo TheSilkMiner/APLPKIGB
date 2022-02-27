@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package net.thesilkminer.mc.austinpowers
+package net.thesilkminer.mc.austin
 
 import groovy.transform.PackageScope
 

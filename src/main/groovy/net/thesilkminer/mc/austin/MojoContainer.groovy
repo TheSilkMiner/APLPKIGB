@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package net.thesilkminer.mc.austinpowers
+package net.thesilkminer.mc.austin
 
 import net.minecraftforge.eventbus.EventBusErrorMessage
 import net.minecraftforge.eventbus.api.BusBuilder
@@ -107,9 +107,10 @@ class MojoContainer extends ModContainer {
         try {
             LOGGER.trace(Logging.LOADING, 'Loading mojo class {} for {}', this.mojoClass.name, this.modId)
             def mojoConstructor = this.mojoClass.getConstructor()
-            this.mojoClass.metaClass = this.contextExtension.get() as MetaClass
+            def metaClass = this.contextExtension.get() as MetaClass
+            this.mojoClass.metaClass = metaClass
             this.mojo = mojoConstructor.newInstance()
-            this.mojo.metaClass = this.mojoClass.metaClass
+            this.mojo.metaClass = metaClass
             LOGGER.trace(Logging.LOADING, 'Successfully loaded mojo {} and injected metaclass', this.modId)
         } catch (final Throwable t) {
             LOGGER.fatal(Logging.LOADING, "Failed to create mojo from class ${ -> this.mojoClass.name } for mojo ${ -> this.modId }", t)

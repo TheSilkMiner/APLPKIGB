@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package net.thesilkminer.mc.austinpowers
+package net.thesilkminer.mc.austin
 
 import groovy.transform.PackageScope
 import net.minecraftforge.fml.Logging
@@ -36,7 +36,7 @@ import java.lang.reflect.InvocationTargetException
 
 @PackageScope
 class MojoLanguageLoader implements IModLanguageProvider.IModLanguageLoader {
-    @SuppressWarnings('SpellCheckingInspection') private static final String MOJO_CONTAINER = 'net.thesilkminer.mc.austinpowers.MojoContainer'
+    @SuppressWarnings('SpellCheckingInspection') private static final String MOJO_CONTAINER = 'net.thesilkminer.mc.austin.MojoContainer'
     @SuppressWarnings('SpellCheckingInspection') private static final String MOD_LOADING_EXCEPTION = 'net.minecraftforge.fml.ModLoadingException'
     @SuppressWarnings('SpellCheckingInspection') private static final String MOD_LOADING_STAGE = 'net.minecraftforge.fml.ModLoadingStage'
 
@@ -82,7 +82,7 @@ class MojoLanguageLoader implements IModLanguageProvider.IModLanguageLoader {
             def mojoConstructor = mojoContainer.getConstructor(IModInfo, String, ModFileScanData, ModuleLayer)
             mojoConstructor.newInstance(info, this.className, modFileScanResults, layer) as T
         } catch (final InvocationTargetException e) {
-            LOGGER.fatal(Logging.LOADING, "A fatal error occurred while attempting to build mod ${ -> this.mojoId }", e)
+            LOGGER.fatal(Logging.LOADING, "A fatal error occurred while attempting to build mojo ${ -> this.mojoId }", e)
 
             throwModLoadingException('CONSTRUCT', e, LOADING_FAILED)
         } catch (NoSuchMethodException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
