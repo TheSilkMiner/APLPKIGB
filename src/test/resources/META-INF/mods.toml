@@ -6,7 +6,6 @@ showAsResourcePack=false
 
 [[mods]]
 modId="mojotest"
-mojo="net.thesilkminer.mc.austin.mojotest.AustinPowerfulMojoTest"
 version="1.0.0"
 displayName="Austin's Powerful Language Provider: Keeping It Groovy Baby"
 authors="TheSilkMiner"

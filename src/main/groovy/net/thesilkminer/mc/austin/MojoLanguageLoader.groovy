@@ -24,8 +24,12 @@
 
 package net.thesilkminer.mc.austin
 
+import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import groovy.transform.MapConstructor
 import groovy.transform.PackageScope
+import groovy.transform.VisibilityOptions
+import groovy.transform.options.Visibility
 import net.minecraftforge.fml.Logging
 import net.minecraftforge.forgespi.language.IModInfo
 import net.minecraftforge.forgespi.language.IModLanguageProvider
@@ -35,7 +39,10 @@ import org.apache.logging.log4j.Logger
 
 import java.lang.reflect.InvocationTargetException
 
+@CompileStatic
+@MapConstructor
 @PackageScope
+@VisibilityOptions(constructor = Visibility.PACKAGE_PRIVATE)
 class MojoLanguageLoader implements IModLanguageProvider.IModLanguageLoader {
     @SuppressWarnings('SpellCheckingInspection') private static final String MOJO_CONTAINER = 'net.thesilkminer.mc.austin.MojoContainer'
     @SuppressWarnings('SpellCheckingInspection') private static final String MOD_LOADING_EXCEPTION = 'net.minecraftforge.fml.ModLoadingException'
@@ -48,12 +55,7 @@ class MojoLanguageLoader implements IModLanguageProvider.IModLanguageLoader {
     final String className
     final String mojoId
 
-    @PackageScope
-    MojoLanguageLoader(final String className, final String mojoId) {
-        this.className = className
-        this.mojoId = mojoId
-    }
-
+    @CompileDynamic
     @Override
     <T> T loadMod(final IModInfo info, final ModFileScanData modFileScanResults, final ModuleLayer layer) {
         // cpw and his love for over-complicated stuff
@@ -93,7 +95,6 @@ class MojoLanguageLoader implements IModLanguageProvider.IModLanguageLoader {
         }
     }
 
-    @CompileStatic
     @Override
     String toString() {
         return "${this.mojoId}@${this.className}"

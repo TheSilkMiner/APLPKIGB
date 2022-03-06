@@ -26,9 +26,11 @@ package net.thesilkminer.mc.austin.mojotest
 
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
+import net.thesilkminer.mc.austin.api.Mojo
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
+@Mojo('mojotest')
 class AustinPowerfulMojoTest {
     private static final Logger LOGGER = LogManager.getLogger(AustinPowerfulMojoTest)
 

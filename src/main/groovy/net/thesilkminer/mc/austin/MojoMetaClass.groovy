@@ -31,6 +31,7 @@ class MojoMetaClass extends DelegatingMetaClass {
 
     private static final OVERRIDDEN_PROPERTIES = [
             'mojoBus' : MojoMetaClass.&obtainMojoBus,
+            'modBus' : MojoMetaClass.&obtainMojoBus,
             'forgeBus' : MojoMetaClass.&obtainForgeBus
     ]
 
