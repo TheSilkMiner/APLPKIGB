@@ -121,7 +121,7 @@ license {
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.18.1'
+    mappings channel: 'official', version: '1.18.2'
 
     runs {
         client {
@@ -177,7 +177,7 @@ repositories {
 }
 
 dependencies {
-    minecraft group: 'net.minecraftforge', name: 'forge', version: '1.18.1-39.0.88'
+    minecraft group: 'net.minecraftforge', name: 'forge', version: '1.18.2-40.0.5'
     shade groovy('stdlib')
     shade groovy('ant')
     shade groovy('astbuilder')
