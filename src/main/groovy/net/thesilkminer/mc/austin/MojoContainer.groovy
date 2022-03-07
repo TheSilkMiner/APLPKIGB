@@ -106,6 +106,13 @@ class MojoContainer extends ModContainer {
     }
 
     private void constructMojo() {
+        this.createMojo()
+        if (this.scanData != null) {
+            this.injectEventListeners()
+        }
+    }
+
+    private void createMojo() {
         try {
             LOGGER.trace(Logging.LOADING, 'Loading mojo class {} for {}', this.mojoClass.name, this.modId)
             def mojoConstructor = this.mojoClass.getConstructor()
@@ -125,6 +132,22 @@ class MojoContainer extends ModContainer {
         metaClass.initialize()
         LOGGER.trace(Logging.LOADING, 'Initialized meta class {} for mojo {}', metaClass, this.modId)
         metaClass
+    }
+
+    private void injectEventListeners() {
+        try {
+            LOGGER.trace(Logging.LOADING, 'Registering event bus subscribers for mojo {}', this.modId)
+            final MojoEventBusSubscriber subscriber = new MojoEventBusSubscriber(
+                    mojoContainer: this,
+                    scanData: this.scanData,
+                    loader: this.mojoClass.classLoader
+            )
+            subscriber.doSubscribing()
+            LOGGER.trace(Logging.LOADING, 'Successfully registered subscribers for mojo {}', this.modId)
+        } catch (final Throwable t) {
+            LOGGER.fatal(Logging.LOADING, "Failed to inject automatic event bus subscribers for mojo ${this.modId}", t)
+            throw new ModLoadingException(this.modInfo, ModLoadingStage.CONSTRUCT, MOD_ERROR, t, this.mojoClass)
+        }
     }
 
     private void postConfigEvent(final IConfigEvent event) {
