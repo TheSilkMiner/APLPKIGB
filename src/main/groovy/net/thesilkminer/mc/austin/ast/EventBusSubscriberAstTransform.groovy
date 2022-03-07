@@ -29,6 +29,7 @@ import org.codehaus.groovy.transform.GroovyASTTransformation
 
 @CompileStatic
 @GroovyASTTransformation(phase = CompilePhase.SEMANTIC_ANALYSIS)
+@SuppressWarnings('unused')
 class EventBusSubscriberAstTransform extends AbstractASTTransformation implements CompilationUnitAware {
 
     private static final ClassNode TARGET_ANNOTATION = ClassHelper.make(EventBusSubscriber)
@@ -43,7 +44,7 @@ class EventBusSubscriberAstTransform extends AbstractASTTransformation implement
 
     @SuppressWarnings('SpellCheckingInspection')
     private static final String GENERATED_METHOD_NAME_BEGINNING = '$$aplp$synthetic$registerSubscribers'
-    private static final String MOD_OBJECT_PARAMETER_NAME = '$$mod$$'
+    private static final String MOD_OBJECT_PARAMETER_NAME = '$$mojo$$'
 
     private CompilationUnit unit
 

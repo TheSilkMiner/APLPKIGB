@@ -10,6 +10,7 @@ import java.lang.annotation.Target
 
 @GroovyASTTransformationClass('net.thesilkminer.mc.austin.ast.EventBusSubscriberAstTransform')
 @Retention(RetentionPolicy.RUNTIME)
+@SuppressWarnings('unused')
 @Target(ElementType.TYPE)
 @interface EventBusSubscriber {
 
