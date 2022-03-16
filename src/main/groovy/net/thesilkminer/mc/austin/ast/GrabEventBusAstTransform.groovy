@@ -75,6 +75,10 @@ class GrabEventBusAstTransform extends AbstractASTTransformation implements Comp
             this.addError('Field annotated with GrabEventBus cannot be static', field)
             valid = false
         }
+        if (!field.final) {
+            this.addError('Field annotated with GrabEventBus must be final', field)
+            valid = false
+        }
         if (field.type != EVENT_BUS_INTERFACE) {
             this.addError('Field annotated with GrabEventBus must have type "IEventBus"', field)
             valid = false

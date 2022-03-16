@@ -44,8 +44,8 @@ class MojoEventBusSubscriber {
     }
 
     private void subscribe(final AnnotationData data) {
-        final String modId = data.annotationData().modId as String
-        if (modId != this.mojoContainer.modId) return
+        final String mojoId = data.annotationData().mojoId as String
+        if (mojoId != this.mojoContainer.modId) return
 
         final EventBus bus = bus(data)
         final Set<Dist> distributions = distributions(data)

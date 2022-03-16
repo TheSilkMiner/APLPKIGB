@@ -7,7 +7,7 @@ import net.thesilkminer.mc.austin.api.EventBusSubscriber
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
-@EventBusSubscriber(modId = 'mojotest', bus = EventBus.MOJO)
+@EventBusSubscriber(mojoId = 'mojotest', bus = EventBus.MOJO)
 class AustinPowerfulMojoSubsTest {
     private static final Logger LOGGER = LogManager.getLogger(AustinPowerfulMojoSubsTest)
 
