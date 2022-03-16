@@ -3,32 +3,51 @@
 The Grooviest language provider in Forgeland
 
 ## How to use
-To use this language provider, simply add it as a dependency in your build script. You
-can use CurseMaven to pull the latest artifact directly from CurseForge.
+To use this language provider, simply add it as a dependency in your build script. The
+language provider is available on Jared's maven, so you can simply add the following
+to your build script, replacing `${mcver}` with the Minecraft version you are targeting
+and `${version}` with the version of APLP you want to use:
+```groovy
+repositories {
+    maven {
+        name 'BlameJared'
+        url = 'https://maven.blamejared.com'
+    }
+}
+dependencies {
+    implementation group: 'net.thesilkminer.mc.austin', name: "aplp-${mcver}", version: "${version}"
+}
+```
 
-In your `mods.toml`, specify `aplp` as the loader. Then, below your `modId`, specify
-your main mod class with the property `mojo`. See the following for a bare-bones example:
+In your `mods.toml`, specify `aplp` as the loader and the version of the software
+as `loaderVersion`. See the following for a bare-bones example:
 
 ```toml
 modLoader="aplp"
 loaderVersion="[1,)"
-license="My License"
+license="All Rights Reserved"
 
 [[mods]]
-modId="mymod"
-mojo="com.example.mc.mymod.MyMod"
+modId="mymojo"
 version="1.0.0"
 ```
 
-The main mod class should have a no-arg constructor. Access to the mod and Forge buses
-is provided respectively through the `mojoBus` and `forgeBus` properties:
+The main mod class should have a no-arg constructor and be annotated with either
+`@Mojo` (suggested) or `@Mod` with its mod ID installed. Access to the mod and Forge
+buses is provided respectively through the `mojoBus` and `forgeBus` properties or
+through the `@GrabEventBus` annotation:
 
 ```groovy
-class MyMod {
-    MyMod() {
+@Mojo("mymojo")
+class MyMojo {
+    @GrabEventBus(EventBus.FORGE)
+    private final IEventBus grabbedForgeBus
+    
+    MyMojo() {
         LogManager.getLogger(MyMod).info('Hello from Groovy-land!')
         mojoBus.register(ModBusEventHandler)
         forgeBus.register(ForgeBusEventHandler)
+        assert grabbedForgeBus === forgeBus
     }
 }
 ```
