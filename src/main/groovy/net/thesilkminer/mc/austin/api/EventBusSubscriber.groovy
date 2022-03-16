@@ -14,15 +14,9 @@ import java.lang.annotation.Target
 @Target(ElementType.TYPE)
 @interface EventBusSubscriber {
 
-    enum Bus {
-        MOJO,
-        MOD,
-        FORGE;
-    }
-
     String modId()
 
-    Bus bus()
+    EventBus bus()
 
     Dist[] dist() default [Dist.CLIENT, Dist.DEDICATED_SERVER]
 }

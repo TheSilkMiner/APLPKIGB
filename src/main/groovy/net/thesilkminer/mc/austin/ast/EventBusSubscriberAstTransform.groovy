@@ -6,6 +6,7 @@ import groovy.transform.Generated
 import net.minecraftforge.eventbus.api.Event
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.event.IModBusEvent
+import net.thesilkminer.mc.austin.api.EventBus
 import net.thesilkminer.mc.austin.api.EventBusSubscriber
 import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.AnnotatedNode
@@ -34,7 +35,7 @@ class EventBusSubscriberAstTransform extends AbstractASTTransformation implement
 
     private static final ClassNode TARGET_ANNOTATION = ClassHelper.make(EventBusSubscriber)
 
-    private static final ClassNode BUS_ENUM = ClassHelper.make(EventBusSubscriber.Bus)
+    private static final ClassNode BUS_ENUM = ClassHelper.make(EventBus)
     private static final ClassNode EVENT = ClassHelper.make(Event)
     private static final ClassNode GENERATED = ClassHelper.make(Generated)
     private static final ClassNode MOD_BUS_EVENT = ClassHelper.make(IModBusEvent)
@@ -66,7 +67,7 @@ class EventBusSubscriberAstTransform extends AbstractASTTransformation implement
     }
 
     private void doVisit(final AnnotationNode annotation, final ClassNode clazz, final SourceUnit unit) {
-        final EventBusSubscriber.Bus bus = findBusFromAnnotation(annotation)
+        final EventBus bus = findBusFromAnnotation(annotation)
 
         if (bus == null) {
             this.addError('Unable to identify bus from EventBusSubscriber annotation', annotation)
@@ -85,7 +86,7 @@ class EventBusSubscriberAstTransform extends AbstractASTTransformation implement
         injectMethod(needsStatic, needsVirtual, clazz, bus)
     }
 
-    private static EventBusSubscriber.Bus findBusFromAnnotation(final AnnotationNode node) {
+    private static EventBus findBusFromAnnotation(final AnnotationNode node) {
         final Expression busExpression = node.getMember('bus')
         if (!(busExpression instanceof PropertyExpression)) return null
 
@@ -96,8 +97,7 @@ class EventBusSubscriberAstTransform extends AbstractASTTransformation implement
         return findBusFromExpressions(target, property)
     }
 
-    private static EventBusSubscriber.Bus findBusFromExpressions(final Expression target, final Expression property) {
-
+    private static EventBus findBusFromExpressions(final Expression target, final Expression property) {
         if (!(target instanceof ClassExpression)) return null
         if (!(property instanceof ConstantExpression)) return null
 
@@ -105,11 +105,10 @@ class EventBusSubscriberAstTransform extends AbstractASTTransformation implement
         if (probablyBusEnum.type != BUS_ENUM) return null
 
         final String name = (property as ConstantExpression).text
-        EventBusSubscriber.Bus.valueOf(name)
+        EventBus.valueOf(name)
     }
 
-    private boolean verifySubscriberValidity(final MethodNode subscriber, final EventBusSubscriber.Bus bus, final SourceUnit unit) {
-
+    private boolean verifySubscriberValidity(final MethodNode subscriber, final EventBus bus, final SourceUnit unit) {
         boolean valid = true
 
         if (!subscriber.public) {
@@ -137,8 +136,7 @@ class EventBusSubscriberAstTransform extends AbstractASTTransformation implement
         valid
     }
 
-    private boolean verifyEventParameterValidity(final Parameter event, final EventBusSubscriber.Bus bus) {
-
+    private boolean verifyEventParameterValidity(final Parameter event, final EventBus bus) {
         final ClassNode eventType = event.type
         final List<ClassNode> targetSuperClasses = getSuperTypesForBus(bus)
         final boolean validity = targetSuperClasses.every { it.interface? eventType.implementsInterface(it) : eventType.isDerivedFrom(it) }
@@ -151,18 +149,16 @@ class EventBusSubscriberAstTransform extends AbstractASTTransformation implement
         validity
     }
 
-    private static List<ClassNode> getSuperTypesForBus(final EventBusSubscriber.Bus bus) {
-
+    private static List<ClassNode> getSuperTypesForBus(final EventBus bus) {
         ClassNode other = switch (bus) {
-            case EventBusSubscriber.Bus.FORGE -> null
-            case EventBusSubscriber.Bus.MOJO, EventBusSubscriber.Bus.MOD -> MOD_BUS_EVENT
+            case EventBus.FORGE -> null
+            case EventBus.MOJO, EventBus.MOD -> MOD_BUS_EVENT
         }
 
         [EVENT, other].findAll(Objects.&nonNull)
     }
 
-    private static void injectMethod(final boolean needsStatic, final boolean needsVirtual, final ClassNode node, final EventBusSubscriber.Bus bus) {
-
+    private static void injectMethod(final boolean needsStatic, final boolean needsVirtual, final ClassNode node, final EventBus bus) {
         final Statement syntheticCode = generateMethodCode(needsStatic, needsVirtual, bus, node)
         final Parameter[] parameters = GeneralUtils.params(GeneralUtils.param(OBJECT, MOD_OBJECT_PARAMETER_NAME))
         final String name = "${GENERATED_METHOD_NAME_BEGINNING}__${bus.toString()}\$\$"
@@ -170,8 +166,7 @@ class EventBusSubscriberAstTransform extends AbstractASTTransformation implement
         syntheticMethod.addAnnotation(new AnnotationNode(GENERATED))
     }
 
-    private static BlockStatement generateMethodCode(final boolean needsStatic, final boolean needsVirtual, final EventBusSubscriber.Bus bus, final ClassNode clazz) {
-
+    private static BlockStatement generateMethodCode(final boolean needsStatic, final boolean needsVirtual, final EventBus bus, final ClassNode clazz) {
         final BlockStatement body = new BlockStatement()
         if (needsStatic) {
             body.addStatement(generateStatement(bus, GeneralUtils.classX(clazz)))
@@ -182,18 +177,16 @@ class EventBusSubscriberAstTransform extends AbstractASTTransformation implement
         body
     }
 
-    private static Statement generateStatement(final EventBusSubscriber.Bus bus, final Expression argument) {
-
+    private static Statement generateStatement(final EventBus bus, final Expression argument) {
         final Expression modObject = GeneralUtils.varX(MOD_OBJECT_PARAMETER_NAME)
         final Expression busObject = GeneralUtils.propX(modObject, idFromBus(bus))
         GeneralUtils.stmt(GeneralUtils.callX(busObject, 'register', GeneralUtils.args(argument)))
     }
 
-    private static String idFromBus(final EventBusSubscriber.Bus bus) {
-
+    private static String idFromBus(final EventBus bus) {
         return switch (bus) {
-            case EventBusSubscriber.Bus.FORGE -> 'forgeBus'
-            case EventBusSubscriber.Bus.MOJO, EventBusSubscriber.Bus.MOD -> 'mojoBus'
+            case EventBus.FORGE -> 'forgeBus'
+            case EventBus.MOJO, EventBus.MOD -> 'mojoBus'
         }
     }
 }

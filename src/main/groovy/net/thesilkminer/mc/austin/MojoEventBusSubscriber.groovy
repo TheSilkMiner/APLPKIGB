@@ -12,6 +12,7 @@ import net.minecraftforge.fml.loading.FMLEnvironment
 import net.minecraftforge.fml.loading.moddiscovery.ModAnnotation
 import net.minecraftforge.forgespi.language.ModFileScanData
 import net.minecraftforge.forgespi.language.ModFileScanData.AnnotationData
+import net.thesilkminer.mc.austin.api.EventBus
 import net.thesilkminer.mc.austin.api.EventBusSubscriber
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -46,7 +47,7 @@ class MojoEventBusSubscriber {
         final String modId = data.annotationData().modId as String
         if (modId != this.mojoContainer.modId) return
 
-        final EventBusSubscriber.Bus bus = bus(data)
+        final EventBus bus = bus(data)
         final Set<Dist> distributions = distributions(data)
 
         if (FMLEnvironment.dist in distributions) {
@@ -54,7 +55,7 @@ class MojoEventBusSubscriber {
         }
     }
 
-    private void doSubscribe(final EventBusSubscriber.Bus bus, final Set<Dist> distributions, final Type clazz) {
+    private void doSubscribe(final EventBus bus, final Set<Dist> distributions, final Type clazz) {
         try {
             LOGGER.debug(Logging.LOADING, 'Performing subscription of {} for {} onto bus {} with dist {}', clazz, this.mojoContainer.modId, bus, distributions)
             final Class<?> initializedClass = Class.forName(clazz.className, true, this.loader)
@@ -67,9 +68,9 @@ class MojoEventBusSubscriber {
         }
     }
 
-    private static EventBusSubscriber.Bus bus(final AnnotationData data) {
+    private static EventBus bus(final AnnotationData data) {
         final ModAnnotation.EnumHolder holder = data.annotationData().bus as ModAnnotation.EnumHolder
-        EventBusSubscriber.Bus.valueOf(holder.value)
+        EventBus.valueOf(holder.value)
     }
 
     @CompileDynamic
