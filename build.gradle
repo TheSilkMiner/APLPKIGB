@@ -1,5 +1,6 @@
 plugins {
     id 'groovy'
+    id 'java-library'
     id 'maven-publish'
     id 'com.github.ben-manes.versions' version '0.42.0'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
@@ -110,6 +111,7 @@ archivesBaseName = 'austin-powerful-language-provider-keeping-it-groovy-baby'
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(JavaVersion.VERSION_17.majorVersion)
+    withSourcesJar()
 }
 
 license {
@@ -169,7 +171,7 @@ minecraft {
 configurations {
     shade {}
     yeet {}
-    implementation.extendsFrom(shade)
+    api.extendsFrom(shade)
 }
 
 repositories {
@@ -177,7 +179,7 @@ repositories {
 }
 
 dependencies {
-    minecraft group: 'net.minecraftforge', name: 'forge', version: '1.18.2-40.0.5'
+    minecraft group: 'net.minecraftforge', name: 'forge', version: "${mcVersion}-40.0.5"
     shade groovy('stdlib')
     shade groovy('ant')
     shade groovy('astbuilder')
@@ -216,7 +218,7 @@ dependencies {
 }
 
 jar {
-    archiveClassifier = 'thin'
+    archiveClassifier = ''
     manifest {
         attributes([
             "Specification-Title": "austins-powerful-language-provider-keeping-it-groovy-baby",
@@ -234,7 +236,7 @@ jar {
 }
 
 shadowJar {
-    archiveClassifier = ''
+    archiveClassifier = 'all'
     configurations = [project.configurations.shade]
     [
             '**/module-info.class',
@@ -255,6 +257,24 @@ task testJar(type: Jar) {
     archiveClassifier = 'test'
 }
 
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifacts = [jar, sourcesJar]
+            artifactId = "aplp-${mcVersion}"
+            pom.withXml { node ->
+                node.asNode().dependencies.'*'.findAll { 'mapped' in it.version.text() }.each { it.parent().remove(it) }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url = uri("file://${System.getenv("local_maven")}")
+        }
+    }
+}
+
 reobf {
     shadowJar {}
     testJar {}
@@ -262,6 +282,10 @@ reobf {
 
 tasks.withType(GroovyCompile).configureEach {
     groovyOptions.optimizationOptions.indy = true
+}
+
+tasks.withType(GenerateModuleMetadata).configureEach {
+    enabled = false
 }
 
 jar.finalizedBy('reobfJar')
