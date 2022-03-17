@@ -54,7 +54,7 @@ class MyMojo {
 
 ### Groovy Version
 
-The Groovy version provided by this language provider is: **4.0.0**.
+The Groovy version provided by this language provider is: **4.0.1**.
 
 Only actual releases will be supported by this language provider, not release candidates.
 Moreover, once a version of Forge is deemed to be production-ready (i.e. a Recommended
