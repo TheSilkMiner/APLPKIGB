@@ -264,7 +264,10 @@ publishing {
             artifacts = [jar, sourcesJar]
             artifactId = "aplp-${mcVersion}"
             pom.withXml { node ->
-                node.asNode().dependencies.'*'.findAll { 'mapped' in it.version.text() }.each { it.parent().remove(it) }
+                node.asNode().dependencies
+                        .'*'
+                        .findAll { it.version.text().contains('mapped') }
+                        .each { it.parent().remove(it) }
             }
         }
     }
