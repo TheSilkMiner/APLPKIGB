@@ -49,7 +49,6 @@ class MojoContainer extends ModContainer {
     @SuppressWarnings('SpellCheckingInspection') private static final String EVENT_ERROR = 'fml.modloading.errorduringevent'
 
     private static final Logger LOGGER = LogManager.getLogger(MojoContainer)
-    private static final Map<MojoContainer, MojoMetaClass> LOADING_CONTEXTS = [:]
 
     final IEventBus mojoBus
 
@@ -71,7 +70,7 @@ class MojoContainer extends ModContainer {
 
         this.activityMap[ModLoadingStage.CONSTRUCT] = this.&constructMojo
         this.configHandler = Optional.of(this.&postConfigEvent as Consumer<IConfigEvent>)
-        this.contextExtension = { -> LOADING_CONTEXTS.computeIfAbsent(this, { this.buildMetaClass() }) } // Oh yes, lambdas...
+        this.contextExtension = { null } // Oh yes, lambdas...
 
         try {
             def module = layer.findModule(info.owningFile.moduleName()).orElseThrow()
@@ -115,23 +114,13 @@ class MojoContainer extends ModContainer {
     private void createMojo() {
         try {
             LOGGER.trace(Logging.LOADING, 'Loading mojo class {} for {}', this.mojoClass.name, this.modId)
-            def mojoConstructor = this.mojoClass.getConstructor()
-            def metaClass = this.contextExtension.get() as MetaClass
-            this.mojoClass.metaClass = metaClass
-            this.mojo = mojoConstructor.newInstance()
-            this.mojo.metaClass = metaClass
-            LOGGER.trace(Logging.LOADING, 'Successfully loaded mojo {} and injected metaclass', this.modId)
+            def mojoConstructor = this.mojoClass.getConstructor(MojoContainer)
+            this.mojo = mojoConstructor.newInstance(this)
+            LOGGER.trace(Logging.LOADING, 'Successfully loaded mojo {}', this.modId)
         } catch (final Throwable t) {
             LOGGER.fatal(Logging.LOADING, "Failed to create mojo from class ${this.mojoClass.name} for mojo ${this.modId}", t)
             throw new ModLoadingException(this.modInfo, ModLoadingStage.CONSTRUCT, MOD_ERROR, t, this.mojoClass)
         }
-    }
-
-    private MetaClass buildMetaClass() {
-        final metaClass = new MojoMetaClass(this.mojoClass.metaClass, this)
-        metaClass.initialize()
-        LOGGER.trace(Logging.LOADING, 'Initialized meta class {} for mojo {}', metaClass, this.modId)
-        metaClass
     }
 
     private void injectEventListeners() {

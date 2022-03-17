@@ -36,7 +36,7 @@ import java.lang.annotation.Target
  * Marks a class as a subscriber to a specific event bus.
  *
  * <p>Classes annotated with this annotation are automatically identified during Mojo construction and registered to the
- * targeted event bus. The mojo that owns this class must be specified in {@link EventBusSubscriber#mojoId()} to avoid
+ * targeted event bus. The mojo that owns this class must be specified in {@link EventBusSubscriber#modId()} to avoid
  * any potential class-loading errors.</p>
  *
  * <p>Every method that wants to listen to a posted event on the bus targeted through {@link EventBusSubscriber#bus()}
@@ -71,11 +71,13 @@ import java.lang.annotation.Target
     /**
      * The ID of the mojo that owns this event subscriber.
      *
+     * <p>The method is named {@code modId} instead of {@code mojoId} simply to ease usage and adoption.</p>
+     *
      * @return The ID of the mojo that owns this event subscriber.
      *
      * @since 1.0.0
      */
-    String mojoId()
+    String modId()
 
     /**
      * The event bus to which the subscriber should be subscribed to.

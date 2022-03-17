@@ -58,7 +58,6 @@ import java.lang.annotation.Target
  *
  * @since 1.0.0
  */
-@GroovyASTTransformationClass('net.thesilkminer.mc.austin.ast.GrabEventBusAstTransform')
 @Retention(RetentionPolicy.SOURCE)
 @SuppressWarnings('unused')
 @Target(ElementType.FIELD)

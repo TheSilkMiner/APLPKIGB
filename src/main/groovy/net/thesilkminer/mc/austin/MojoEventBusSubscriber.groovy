@@ -68,7 +68,7 @@ class MojoEventBusSubscriber {
     }
 
     private void subscribe(final AnnotationData data) {
-        final String mojoId = data.annotationData().mojoId as String
+        final String mojoId = data.annotationData().modId as String
         if (mojoId != this.mojoContainer.modId) return
 
         final EventBus bus = bus(data)
@@ -81,11 +81,11 @@ class MojoEventBusSubscriber {
 
     private void doSubscribe(final EventBus bus, final Set<Dist> distributions, final Type clazz) {
         try {
-            LOGGER.debug(Logging.LOADING, 'Performing subscription of {} for {} onto bus {} with dist {}', clazz, this.mojoContainer.modId, bus, distributions)
+            LOGGER.debug(Logging.LOADING, 'Performing subscription of {} for {} onto bus {} with dist {}', clazz.className, this.mojoContainer.modId, bus, distributions)
             final Class<?> initializedClass = Class.forName(clazz.className, true, this.loader)
             final String name = "${SUBSCRIBER_METHOD_NAME_BEGINNING}__${bus.toString()}\$\$"
-            final Method initMethod = initializedClass.getDeclaredMethod(name, Object)
-            initMethod.invoke(null, this.mojoContainer.mod)
+            final Method initMethod = initializedClass.getDeclaredMethod(name, MojoContainer)
+            initMethod.invoke(null, this.mojoContainer)
         } catch (final Throwable t) {
             LOGGER.fatal(Logging.LOADING, "Unable to load subscriber $clazz for ${this.mojoContainer.modId}", t)
             throw new RuntimeException(t)

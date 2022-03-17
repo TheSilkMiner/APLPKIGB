@@ -27,9 +27,11 @@ package net.thesilkminer.mc.austin.ast
 import groovy.transform.CompilationUnitAware
 import groovy.transform.CompileStatic
 import groovy.transform.Generated
+import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.eventbus.api.Event
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.event.IModBusEvent
+import net.thesilkminer.mc.austin.MojoContainer
 import net.thesilkminer.mc.austin.api.EventBus
 import net.thesilkminer.mc.austin.api.EventBusSubscriber
 import org.codehaus.groovy.ast.ASTNode
@@ -62,14 +64,17 @@ class EventBusSubscriberAstTransform extends AbstractASTTransformation implement
     private static final ClassNode BUS_ENUM = ClassHelper.make(EventBus)
     private static final ClassNode EVENT = ClassHelper.make(Event)
     private static final ClassNode GENERATED = ClassHelper.make(Generated)
+    private static final ClassNode MINECRAFT_FORGE = ClassHelper.make(MinecraftForge)
     private static final ClassNode MOD_BUS_EVENT = ClassHelper.make(IModBusEvent)
-    private static final ClassNode OBJECT = ClassHelper.make(Object)
+    private static final ClassNode MOJO_CONTAINER = ClassHelper.make(MojoContainer)
     private static final ClassNode SUBSCRIBE_EVENT = ClassHelper.make(SubscribeEvent)
     private static final ClassNode VOID = ClassHelper.make(void)
 
+    private static final String EVENT_BUS = 'EVENT_BUS'
     @SuppressWarnings('SpellCheckingInspection')
     private static final String GENERATED_METHOD_NAME_BEGINNING = '$$aplp$synthetic$registerSubscribers'
-    private static final String MOD_OBJECT_PARAMETER_NAME = '$$mojo$$'
+    private static final String MOJO_CONTAINER_PARAMETER_NAME = '$$mojoContainer$$'
+    private static final String MOJO_BUS = 'mojoBus'
 
     private CompilationUnit unit
 
@@ -184,7 +189,7 @@ class EventBusSubscriberAstTransform extends AbstractASTTransformation implement
 
     private static void injectMethod(final boolean needsStatic, final boolean needsVirtual, final ClassNode node, final EventBus bus) {
         final Statement syntheticCode = generateMethodCode(needsStatic, needsVirtual, bus, node)
-        final Parameter[] parameters = GeneralUtils.params(GeneralUtils.param(OBJECT, MOD_OBJECT_PARAMETER_NAME))
+        final Parameter[] parameters = GeneralUtils.params(GeneralUtils.param(MOJO_CONTAINER, MOJO_CONTAINER_PARAMETER_NAME))
         final String name = "${GENERATED_METHOD_NAME_BEGINNING}__${bus.toString()}\$\$"
         final MethodNode syntheticMethod = node.addSyntheticMethod(name, 25, VOID, parameters, new ClassNode[0], syntheticCode)
         syntheticMethod.addAnnotation(new AnnotationNode(GENERATED))
@@ -202,15 +207,13 @@ class EventBusSubscriberAstTransform extends AbstractASTTransformation implement
     }
 
     private static Statement generateStatement(final EventBus bus, final Expression argument) {
-        final Expression modObject = GeneralUtils.varX(MOD_OBJECT_PARAMETER_NAME)
-        final Expression busObject = GeneralUtils.propX(modObject, idFromBus(bus))
-        GeneralUtils.stmt(GeneralUtils.callX(busObject, 'register', GeneralUtils.args(argument)))
+        GeneralUtils.stmt(GeneralUtils.callX(expressionFromBus(bus), 'register', GeneralUtils.args(argument)))
     }
 
-    private static String idFromBus(final EventBus bus) {
+    private static Expression expressionFromBus(final EventBus bus) {
         return switch (bus) {
-            case EventBus.FORGE -> 'forgeBus'
-            case EventBus.MOJO, EventBus.MOD -> 'mojoBus'
+            case EventBus.FORGE -> GeneralUtils.propX(GeneralUtils.classX(MINECRAFT_FORGE), EVENT_BUS)
+            case EventBus.MOJO, EventBus.MOD -> GeneralUtils.propX(GeneralUtils.varX(MOJO_CONTAINER_PARAMETER_NAME, MOJO_CONTAINER), MOJO_BUS)
         }
     }
 }

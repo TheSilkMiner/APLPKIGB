@@ -24,6 +24,8 @@
 
 package net.thesilkminer.mc.austin.api
 
+import org.codehaus.groovy.transform.GroovyASTTransformationClass
+
 import java.lang.annotation.ElementType
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
@@ -55,6 +57,7 @@ import java.lang.annotation.Target
  *
  * @since 1.0.0
  */
+@GroovyASTTransformationClass('net.thesilkminer.mc.austin.ast.MojoAstTransform')
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @interface Mod {
