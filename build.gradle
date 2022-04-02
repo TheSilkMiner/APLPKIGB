@@ -261,7 +261,7 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-            artifacts = [jar, sourcesJar]
+            artifacts = [jar, sourcesJar, shadowJar]
             artifactId = "aplp-${mcVersion}"
             pom.withXml { node ->
                 node.asNode().dependencies

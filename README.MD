@@ -15,7 +15,8 @@ repositories {
     }
 }
 dependencies {
-    implementation group: 'net.thesilkminer.mc.austin', name: "aplp-${mcver}", version: "${version}"
+    compileOnly group: 'net.thesilkminer.mc.austin', name: "aplp-${mcver}", version: "${version}"
+    runtimeOnly group: 'net.thesilkminer.mc.austin', name: "aplp-${mcver}", version: "${version}", classifier: 'all'
 }
 ```
 
