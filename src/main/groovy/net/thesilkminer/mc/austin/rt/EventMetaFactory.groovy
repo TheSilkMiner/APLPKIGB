@@ -1,6 +1,7 @@
 package net.thesilkminer.mc.austin.rt
 
 import groovy.transform.CompileStatic
+import groovy.transform.PackageScope
 import net.minecraftforge.eventbus.api.EventPriority
 import net.minecraftforge.eventbus.api.IEventBus
 
@@ -9,6 +10,13 @@ import java.util.function.Consumer
 
 @CompileStatic
 final class EventMetaFactory {
+
+    private static final class DispatchException extends RuntimeException {
+        @PackageScope
+        DispatchException(final String message, final Throwable cause) {
+            super(message, cause)
+        }
+    }
 
     static void subscribeToBus(
             final Closure<?> originalCall,
@@ -21,7 +29,6 @@ final class EventMetaFactory {
             final methodPointerName,
             final Closure<?> subscriber
     ) {
-
         if (!(maybeBus instanceof IEventBus)) {
             originalCall()
             return
@@ -42,12 +49,20 @@ final class EventMetaFactory {
 
             target.parameters[0].type
         }()
-        final Consumer consumer = { event -> subscriber(eventType.cast(event)) }
+        final Consumer consumer = { event -> dispatch(subscriber, eventType, event) }
 
         if (isGeneric) {
             bus.addGenericListener(maybeGenericType as Class, priority, receiveCanceled, eventType as Class, consumer)
         } else {
             bus.addListener(priority, receiveCanceled, eventType as Class, consumer)
+        }
+    }
+
+    static void dispatch(final Closure<?> subscriber, final Class<?> type, final event) {
+        try {
+            subscriber(type.cast(event))
+        } catch (final Throwable e) {
+            throw new DispatchException('An error occurred while performing Closure-based event dispatching', e)
         }
     }
 }
