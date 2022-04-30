@@ -38,7 +38,7 @@ import java.util.function.Consumer
 import java.util.function.Supplier
 
 @CompileStatic
-class MojoLanguageProvider implements IModLanguageProvider {
+final class MojoLanguageProvider implements IModLanguageProvider {
     @SuppressWarnings('SpellCheckingInspection') private static final String NAME = 'aplp'
     @SuppressWarnings('SpellCheckingInspection') private static final String MOD_DESC = 'Lnet/thesilkminer/mc/austin/api/Mod;'
     @SuppressWarnings('SpellCheckingInspection') private static final String MOJO_DESC = 'Lnet/thesilkminer/mc/austin/api/Mojo;'
@@ -46,6 +46,10 @@ class MojoLanguageProvider implements IModLanguageProvider {
     private static final Logger LOGGER = LogManager.getLogger(MojoLanguageProvider)
     private static final Type MOD_ANNOTATION = Type.getType(MOD_DESC)
     private static final Type MOJO_ANNOTATION = Type.getType(MOJO_DESC)
+
+    MojoLanguageProvider() {
+        LOGGER.info('Successfully initialized Mojo Language Provider on name {}', this.name())
+    }
 
     @Override
     String name() {

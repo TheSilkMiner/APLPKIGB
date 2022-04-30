@@ -57,7 +57,7 @@ import org.codehaus.groovy.transform.GroovyASTTransformation
 
 @CompileStatic
 @GroovyASTTransformation(phase = CompilePhase.SEMANTIC_ANALYSIS)
-class AddListenerAstTransform implements ASTTransformation, ErrorCollecting {
+final class AddListenerAstTransform implements ASTTransformation, ErrorCollecting {
 
     private static final Object REQUIRE_REFLECTIVE_LOOKUP_EXTRACTION = new Object()
 

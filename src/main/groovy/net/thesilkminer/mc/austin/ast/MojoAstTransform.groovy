@@ -57,7 +57,7 @@ import org.codehaus.groovy.transform.GroovyASTTransformation
 @CompileStatic
 @GroovyASTTransformation(phase = CompilePhase.SEMANTIC_ANALYSIS)
 @SuppressWarnings('unused')
-class MojoAstTransform extends AbstractASTTransformation {
+final class MojoAstTransform extends AbstractASTTransformation {
 
     private static final ClassNode TARGET_ANNOTATION = ClassHelper.make(Mojo)
     private static final ClassNode ALTERNATIVE_TARGET_ANNOTATION = ClassHelper.make(Mod)

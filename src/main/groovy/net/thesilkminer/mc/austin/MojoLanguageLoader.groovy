@@ -43,7 +43,7 @@ import java.lang.reflect.InvocationTargetException
 @MapConstructor
 @PackageScope
 @VisibilityOptions(constructor = Visibility.PACKAGE_PRIVATE)
-class MojoLanguageLoader implements IModLanguageProvider.IModLanguageLoader {
+final class MojoLanguageLoader implements IModLanguageProvider.IModLanguageLoader {
     @SuppressWarnings('SpellCheckingInspection') private static final String MOJO_CONTAINER = 'net.thesilkminer.mc.austin.MojoContainer'
     @SuppressWarnings('SpellCheckingInspection') private static final String MOD_LOADING_EXCEPTION = 'net.minecraftforge.fml.ModLoadingException'
     @SuppressWarnings('SpellCheckingInspection') private static final String MOD_LOADING_STAGE = 'net.minecraftforge.fml.ModLoadingStage'

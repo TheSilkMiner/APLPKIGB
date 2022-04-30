@@ -48,7 +48,7 @@ import java.lang.reflect.Method
 @MapConstructor(includeFields = true)
 @PackageScope
 @VisibilityOptions(constructor = Visibility.PACKAGE_PRIVATE)
-class MojoEventBusSubscriber {
+final class MojoEventBusSubscriber {
 
     private static final Logger LOGGER = LogManager.getLogger(MojoEventBusSubscriber)
     private static final Type EVENT_BUS_SUBSCRIBER = Type.getType(EventBusSubscriber)

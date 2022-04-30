@@ -57,7 +57,7 @@ import org.codehaus.groovy.transform.GroovyASTTransformation
 @CompileStatic
 @GroovyASTTransformation(phase = CompilePhase.SEMANTIC_ANALYSIS)
 @SuppressWarnings('unused')
-class EventBusSubscriberAstTransform extends AbstractASTTransformation implements CompilationUnitAware {
+final class EventBusSubscriberAstTransform extends AbstractASTTransformation implements CompilationUnitAware {
 
     private static final ClassNode TARGET_ANNOTATION = ClassHelper.make(EventBusSubscriber)
 

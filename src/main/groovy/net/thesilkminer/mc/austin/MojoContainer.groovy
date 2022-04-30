@@ -43,7 +43,7 @@ import org.apache.logging.log4j.Logger
 import java.util.function.Consumer
 
 @CompileStatic
-class MojoContainer extends ModContainer {
+final class MojoContainer extends ModContainer {
     @SuppressWarnings('SpellCheckingInspection') private static final String CLASS_ERROR = 'fml.modloading.failedtoloadmodclass'
     @SuppressWarnings('SpellCheckingInspection') private static final String MOD_ERROR = 'fml.modloading.failedtoloadmod'
     @SuppressWarnings('SpellCheckingInspection') private static final String EVENT_ERROR = 'fml.modloading.errorduringevent'
