@@ -4,6 +4,7 @@ package net.thesilkminer.mc.austin.boot
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import net.minecraftforge.fml.loading.moddiscovery.ModFile
+import net.minecraftforge.forgespi.language.IModFileInfo
 import net.minecraftforge.forgespi.locating.IModLocator
 
 import java.util.jar.Manifest
@@ -11,13 +12,6 @@ import java.util.jar.Manifest
 @CompileStatic
 @PackageScope
 final class MojoFile {
-    private static final class FuckYouCpwInterfacesExistForAReasonYouKnow {
-        // Just so this class appears in stack traces just in case
-        static <T> T exec(final Closure<T> closure) {
-            closure()
-        }
-    }
-
     private static final List<String> BOOT_LAYER_PACKAGES = [
             'net.thesilkminer.mc.austin.boot'
     ]
@@ -30,26 +24,28 @@ final class MojoFile {
 
     @PackageScope
     static ModFile makeLoaderModFile(final IModLocator locator) {
-        FuckYouCpwInterfacesExistForAReasonYouKnow.exec {
-            final jar = new FilteredJar(manifest('LANGPROVIDER', BootDataManager.INSTANCE.version), [BootDataManager.INSTANCE.own], '.lang', filterLoader())
-            new ModFile(jar, locator, LoaderMojoFileInfo.&new)
-        }
+        fuckCpwHardcodedFile('LANGPROVIDER', '.lang', filterLoader(), locator, { file -> new LoaderMojoFileInfo(file as ModFile) })
     }
 
     @PackageScope
     static ModFile makeGameModFile(final IModLocator locator) {
-        FuckYouCpwInterfacesExistForAReasonYouKnow.exec {
-            final jar = new FilteredJar(manifest('MOD', BootDataManager.INSTANCE.version), [BootDataManager.INSTANCE.own], '.rt', MojoFile.&filterGame)
-            new ModFile(jar, locator, { file -> RedirectingMojoFileInfo.of(file as ModFile, 'mods_aplp.toml') })
-        }
+        fuckCpwHardcodedFile('MOD', '.rt', MojoFile.&filterGame, locator, { file -> RedirectingMojoFileInfo.of(file as ModFile, 'mods_aplp.toml') })
     }
 
     @PackageScope
     static ModFile makePaintModFile(final IModLocator locator) {
-        FuckYouCpwInterfacesExistForAReasonYouKnow.exec {
-            final jar = new FilteredJar(manifest('MOD', BootDataManager.INSTANCE.version), [BootDataManager.INSTANCE.own], '.paint', MojoFile.&filterPaint)
-            new ModFile(jar, locator, { file -> RedirectingMojoFileInfo.of(file as ModFile, 'mods_paint.toml') })
-        }
+        fuckCpwHardcodedFile('MOD', '.paint', MojoFile.&filterPaint, locator, { file -> RedirectingMojoFileInfo.of(file as ModFile, 'mods_paint.toml') })
+    }
+
+    private static ModFile fuckCpwHardcodedFile(
+            final String mojoType,
+            final String discriminator,
+            final Closure<Boolean> filter,
+            final IModLocator locator,
+            final Closure<IModFileInfo> parser
+    ) {
+        final jar = new FilteredJar(manifest(mojoType, BootDataManager.INSTANCE.version), [BootDataManager.INSTANCE.own], discriminator, filter)
+        new ModFile(jar, locator, parser)
     }
 
     private static Manifest manifest(final String type, final String version) {
