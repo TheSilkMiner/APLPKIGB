@@ -25,6 +25,7 @@
 package net.thesilkminer.mc.austin.mojotest
 
 import net.minecraftforge.eventbus.api.IEventBus
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
 import net.thesilkminer.mc.austin.api.EventBus
 import net.thesilkminer.mc.austin.api.GrabEventBus
 import net.thesilkminer.mc.austin.api.Mojo
@@ -46,5 +47,11 @@ class AustinPowerfulMojoTest {
         LOGGER.info('Say hello to my meta-class {}', this.metaClass)
         LOGGER.info('Buses are mojo "{}" and Forge "{}"', mojoBus, forgeBus)
         LOGGER.info('Grabbing event buses leads to {} and {}', this.grabbedMojoBus, this.grabbedForgeBus)
+        this.mojoBus.addListener(this.&testCommonSetup)
+    }
+
+    @SuppressWarnings('GrMethodMayBeStatic')
+    private void testCommonSetup(final FMLCommonSetupEvent event) {
+        LOGGER.info('Oh, hey, addListener seems to work: I got {}', event)
     }
 }

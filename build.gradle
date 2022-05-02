@@ -97,6 +97,18 @@ static String getGitCommit() {
     return proc.exitValue()? "ERROR(${proc.exitValue()})" : proc.text.trim()
 }
 
+static tryRenameFile(final it) {
+    if (it.path.contains('net/thesilkminer/mc')) {
+        if (it.path.endsWith('.class') && !it.path.contains('boot')) {
+            it.path = "aplp_module_hider/${it.path}"
+        }
+    } else if (it.path.contains('/services/')) {
+        if (it.path.contains('IModLanguageProvider') || it.path.contains('.groovy.transform.')) {
+            it.path = it.path.replace('/services/', '/aplp_services/')
+        }
+    }
+}
+
 def groovy(def name) {
     return [
             group: 'org.apache.groovy',
@@ -132,13 +144,12 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
 
             lazyToken('minecraft_classpath') {
-                configurations.shade.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
+                def shaded = configurations.shade.copyRecursive().resolve().collect { it.absolutePath }
+                def jar = tasks.rtJar.archiveFile.get().asFile.absolutePath
+                return (shaded + [jar]).join(File.pathSeparator)
             }
 
             mods {
-                austinspowerfullanguageproviderkeepingitgroovybaby {
-                    source sourceSets.main
-                }
                 mojotest {
                     source sourceSets.test
                 }
@@ -153,13 +164,12 @@ minecraft {
             args 'nogui'
 
             lazyToken('minecraft_classpath') {
-                configurations.shade.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
+                def shaded = configurations.shade.copyRecursive().resolve().collect { it.absolutePath }
+                def jar = tasks.rtJar.archiveFile.get().asFile.absolutePath
+                return (shaded + [jar]).join(File.pathSeparator)
             }
 
             mods {
-                austinspowerfullanguageproviderkeepingitgroovybaby {
-                    source sourceSets.main
-                }
                 mojotest {
                     source sourceSets.test
                 }
@@ -230,7 +240,7 @@ jar {
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
             "GitCommit": getGitCommit(),
             "FMLModType": "LANGPROVIDER",
-            "Automatic-Module-Name": "net.thesilkminer.mc.aplpkigb"
+            "Automatic-Module-Name": "net.thesilkminer.mc.aplpkigb.boot"
         ])
     }
 }
@@ -246,10 +256,35 @@ shadowJar {
             'META-INF/LICENSE.md',
             'META-INF/NOTICE.txt',
             '**/*.kotlin-module',
-            '**/*.psd'
+            '**/*.psd',
+            'META-INF/services/org.codehaus.groovy.transform.ASTTransformation' // Only needed at compile time
     ].each { exclude it }
     transform(UpdatedGroovyExtensionModuleTransformer)
     mergeServiceFiles()
+    eachFile {
+        tryRenameFile(it)
+    }
+}
+
+task rtJar(type: Jar) {
+    from sourceSets.main.output
+    archiveClassifier = 'rt'
+    manifest {
+        attributes([
+                "Specification-Title": "austins-powerful-language-provider-keeping-it-groovy-baby",
+                "Specification-Vendor": "TheSilkMiner",
+                "Specification-Version": "1",
+                "Implementation-Title": project.name,
+                "Implementation-Version": archiveVersion.get(),
+                "Implementation-Vendor" : "TheSilkMiner",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "GitCommit": getGitCommit(),
+                "Automatic-Module-Name": "net.thesilkminer.mc.aplpkigb.boot"
+        ])
+    }
+    eachFile {
+        tryRenameFile(it)
+    }
 }
 
 task testJar(type: Jar) {
@@ -289,6 +324,12 @@ tasks.withType(GroovyCompile).configureEach {
 
 tasks.withType(GenerateModuleMetadata).configureEach {
     enabled = false
+}
+
+tasks.whenTaskAdded {
+    if (it.name == 'prepareRuns') {
+        it.dependsOn(rtJar)
+    }
 }
 
 jar.finalizedBy('reobfJar')
