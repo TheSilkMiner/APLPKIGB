@@ -141,17 +141,19 @@ final class MojoAstTransform extends AbstractASTTransformation {
 
     private static void fixConstructor(final ClassNode node, final List<FieldNode> busGrabbers) {
         final ConstructorNode noArgConstructor = node.declaredConstructors.find {it.parameters.size() == 0 }
-        node.declaredConstructors.remove(noArgConstructor)
+        if (noArgConstructor) {
+            node.declaredConstructors.remove(noArgConstructor)
+        }
         node.addConstructor(generateNewConstructor(node, noArgConstructor, busGrabbers))
     }
 
     private static ConstructorNode generateNewConstructor(final ClassNode owner, final ConstructorNode previous, final List<FieldNode> busGrabbers) {
-        final int modifiers = previous.modifiers | 0x1000
+        final int modifiers = (previous?.modifiers ?: 0x0001) | 0x1000
         final Parameter[] parameters = [new Parameter(MOJO_CONTAINER, MOJO_CONTAINER_NAME)]
         final Statement code = GeneralUtils.block(
                 GeneralUtils.assignS(GeneralUtils.thisPropX(false, MOJO_CONTAINER_NAME), GeneralUtils.varX(MOJO_CONTAINER_NAME)),
                 generateBusGrabbersCode(owner, busGrabbers),
-                previous.code
+                previous?.code ?: GeneralUtils.block()
         )
         final ConstructorNode node = new ConstructorNode(modifiers, parameters, new ClassNode[0], code)
         node.addAnnotation(new AnnotationNode(GENERATED))
