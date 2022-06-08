@@ -355,7 +355,7 @@ task allJar(type: Jar) {
     from groovyJar
     from providerJar
     from rtJar
-    from dslJar
+    //from dslJar
     from astJar
     from sourceSets.main.output
     manifest {
@@ -378,7 +378,7 @@ task testJar(type: Jar) {
 configurations.apiElements {
     [
             tasks.providerJar,
-            tasks.dslJar,
+            //tasks.dslJar,
             tasks.astJar,
             tasks.rtJar
     ].each { outgoing.artifact(it) }
@@ -392,7 +392,6 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-            //artifacts = [jar, sourcesJar, providerJar, dslJar, astJar, rtJar]
             artifactId = "aplp-${mcVersion}"
             pom.withXml { node ->
                 node.asNode().dependencies
