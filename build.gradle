@@ -106,7 +106,7 @@ def groovy(def name) {
     ]
 }
 
-version = '1.0.1'
+version = '1.0.2'
 group = 'net.thesilkminer.mc.austin'
 archivesBaseName = 'austin-powerful-language-provider-keeping-it-groovy-baby'
 
@@ -124,7 +124,7 @@ license {
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.18.2'
+    mappings channel: 'official', version: '1.19'
 
     runs {
         client {
