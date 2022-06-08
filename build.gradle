@@ -195,7 +195,7 @@ repositories {
 }
 
 dependencies {
-    minecraft group: 'net.minecraftforge', name: 'forge', version: "${mcVersion}-40.0.5"
+    minecraft group: 'net.minecraftforge', name: 'forge', version: "${mcVersion}-41.0.1"
     shade groovy('stdlib')
     shade groovy('ant')
     shade groovy('astbuilder')
