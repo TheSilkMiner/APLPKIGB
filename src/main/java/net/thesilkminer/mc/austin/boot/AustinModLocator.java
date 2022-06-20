@@ -25,7 +25,7 @@
 package net.thesilkminer.mc.austin.boot;
 
 import cpw.mods.jarhandling.SecureJar;
-import net.minecraftforge.fml.loading.moddiscovery.AbstractJarFileLocator;
+import net.minecraftforge.fml.loading.moddiscovery.AbstractJarFileModLocator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -41,7 +41,7 @@ import java.util.function.Predicate;
 import java.util.jar.Manifest;
 import java.util.stream.Stream;
 
-public final class AustinModLocator extends AbstractJarFileLocator {
+public final class AustinModLocator extends AbstractJarFileModLocator {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final String NAME = "aplp:mod_locator";
 
@@ -66,8 +66,7 @@ public final class AustinModLocator extends AbstractJarFileLocator {
     }
 
     @Override
-    public void initArguments(final Map<String, ?> arguments) {
-    }
+    public void initArguments(final Map<String, ?> arguments) {}
 
     private boolean isProvider(final Manifest manifest) {
         final Object type = manifest.getMainAttributes().getValue("FMLModType");
