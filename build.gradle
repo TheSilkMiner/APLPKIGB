@@ -106,7 +106,7 @@ def groovy(def name) {
     ]
 }
 
-version = '1.0.2'
+version = '1.0.3'
 group = 'net.thesilkminer.mc.austin'
 archivesBaseName = 'austin-powerful-language-provider-keeping-it-groovy-baby'
 
