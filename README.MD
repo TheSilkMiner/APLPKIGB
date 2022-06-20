@@ -20,6 +20,14 @@ dependencies {
 }
 ```
 
+Also make sure to add the `groovy` plugin to your build script to ensure that the required
+tasks for Groovy compilation are added:
+```groovy
+plugins {
+    id 'groovy'
+}
+```
+
 In your `mods.toml`, specify `aplp` as the loader and the version of the software
 as `loaderVersion`. See the following for a bare-bones example:
 
@@ -55,7 +63,7 @@ class MyMojo {
 
 ### Groovy Version
 
-The Groovy version provided by this language provider is: **4.0.1**.
+The Groovy version provided by this language provider is: **4.0.3**.
 
 Only actual releases will be supported by this language provider, not release candidates.
 Moreover, once a version of Forge is deemed to be production-ready (i.e. a Recommended
