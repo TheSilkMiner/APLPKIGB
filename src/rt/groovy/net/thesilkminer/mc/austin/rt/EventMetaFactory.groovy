@@ -26,6 +26,9 @@ package net.thesilkminer.mc.austin.rt
 
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
+import groovy.transform.stc.ClosureParams
+import groovy.transform.stc.FromString
+import net.minecraftforge.eventbus.api.Event
 import net.minecraftforge.eventbus.api.EventPriority
 import net.minecraftforge.eventbus.api.IEventBus
 
@@ -42,16 +45,16 @@ final class EventMetaFactory {
         }
     }
 
-    static void subscribeToBus(
+    static <T extends Event> void subscribeToBus(
             final Closure<?> originalCall,
             final maybeBus,
             final EventPriority maybePriority,
             final Boolean maybeReceiveCancelled,
             final Class<?> maybeGenericType,
-            final Class<?> eventTypeReference,
+            final Class<T> eventTypeReference,
             final methodPointerOwner,
             final methodPointerName,
-            final Closure<?> subscriber
+            @ClosureParams(value = FromString, options = "T") final Closure<?> subscriber
     ) {
         if (!(maybeBus instanceof IEventBus)) {
             originalCall()
