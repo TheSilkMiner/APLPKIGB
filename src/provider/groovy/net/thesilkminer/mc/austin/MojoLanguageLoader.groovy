@@ -24,16 +24,13 @@
 
 package net.thesilkminer.mc.austin
 
-import groovy.transform.CompileDynamic
-import groovy.transform.CompileStatic
-import groovy.transform.MapConstructor
-import groovy.transform.PackageScope
-import groovy.transform.VisibilityOptions
+import groovy.transform.*
 import groovy.transform.options.Visibility
 import net.minecraftforge.fml.Logging
 import net.minecraftforge.forgespi.language.IModInfo
 import net.minecraftforge.forgespi.language.IModLanguageProvider
 import net.minecraftforge.forgespi.language.ModFileScanData
+import net.thesilkminer.mc.austin.mappings.MappingMetaClassCreationHandle
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
@@ -78,6 +75,7 @@ final class MojoLanguageLoader implements IModLanguageProvider.IModLanguageLoade
         }
 
         try {
+            MappingMetaClassCreationHandle.applyCreationHandle()
             def mojoContainer = Class.forName(MOJO_CONTAINER, true, threadLoader)
             if (mojoContainer.classLoader != threadLoader) {
                 LOGGER.error(Logging.LOADING, 'Attempting to load MojoContainer from classloader {} actually resulted in {}', threadLoader, mojoContainer.classLoader)
