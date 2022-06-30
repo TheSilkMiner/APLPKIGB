@@ -1,8 +1,30 @@
+/*
+ * This file is part of APLP: KIGB, licensed under the MIT License
+ *
+ * Copyright (c) 2022 TheSilkMiner
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package net.thesilkminer.mc.austin.mappings
 
 import groovy.transform.CompileStatic
-
-import java.util.regex.Pattern
 
 @CompileStatic
 class SrgParser implements Closeable {
@@ -15,8 +37,6 @@ class SrgParser implements Closeable {
     Map<String, String> workingMethods
     Map<String, String> workingFields
 
-    private final static Pattern PATTERN = ~/(.*) /
-
     SrgParser(Reader reader) {
         this.reader = reader
         reader.readLine() // Drop header
@@ -28,27 +48,27 @@ class SrgParser implements Closeable {
     }
 
     private void parseLine(String line) {
-        var found = (line =~ PATTERN).findAll()
+        var found = line.split(' ').collectMany { it.split('\t').toList() }.findAll {it.length()!=0}
+        if (found.size()<=1) return // Filter out "static" lines
         String obf = found[0]
-        obf = obf.substring(0,obf.length()-1)
-        String srg = found[-1]
-        srg = srg.substring(0,obf.length()-1)
+        String srg = found[-2]
         if (!line.startsWith("\t")) {
             workingFields = new HashMap<>()
             fields.put(obf, workingFields)
             workingMethods = new HashMap<>()
             methods.put(obf, workingMethods)
         } else if (!line.startsWith("\t\t")) {
-            if (found.size()==3) {
+            if (found.size()==4) {
+                obf = obf + found[-3].split(/\)/)[0]+')'
                 workingMethods.put(obf, srg)
-            } else {
+            } else if (found.size()==3) {
                 workingFields.put(obf,srg)
             }
         }
     }
 
-    parse() {
-        for (String line : reader) {
+    void parse() {
+        for (String line : reader.readLines()) {
             parseLine(line)
         }
     }

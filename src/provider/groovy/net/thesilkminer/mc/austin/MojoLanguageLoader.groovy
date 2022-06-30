@@ -31,6 +31,7 @@ import net.minecraftforge.forgespi.language.IModInfo
 import net.minecraftforge.forgespi.language.IModLanguageProvider
 import net.minecraftforge.forgespi.language.ModFileScanData
 import net.thesilkminer.mc.austin.mappings.MappingMetaClassCreationHandle
+import net.thesilkminer.mc.austin.mappings.MappingsProvider
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
@@ -59,6 +60,8 @@ final class MojoLanguageLoader implements IModLanguageProvider.IModLanguageLoade
         // oh well, let's have neat class-loader separation
         def threadLoader = Thread.currentThread().getContextClassLoader()
 
+        MappingMetaClassCreationHandle.applyCreationHandle(MappingsProvider.INSTANCE.mappingsProvider.get(), threadLoader)
+
         // GroovyAssignabilityChecks are suppressed because they are actually throwables at runtime
         def throwModLoadingException = { String stage, Throwable cause, String message ->
             def modLoadingException = Class.forName(MOD_LOADING_EXCEPTION, true, threadLoader)
@@ -75,7 +78,6 @@ final class MojoLanguageLoader implements IModLanguageProvider.IModLanguageLoade
         }
 
         try {
-            MappingMetaClassCreationHandle.applyCreationHandle()
             def mojoContainer = Class.forName(MOJO_CONTAINER, true, threadLoader)
             if (mojoContainer.classLoader != threadLoader) {
                 LOGGER.error(Logging.LOADING, 'Attempting to load MojoContainer from classloader {} actually resulted in {}', threadLoader, mojoContainer.classLoader)

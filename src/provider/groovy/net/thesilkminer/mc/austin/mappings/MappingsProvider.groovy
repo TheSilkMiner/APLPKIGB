@@ -1,3 +1,27 @@
+/*
+ * This file is part of APLP: KIGB, licensed under the MIT License
+ *
+ * Copyright (c) 2022 TheSilkMiner
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package net.thesilkminer.mc.austin.mappings
 
 import com.google.gson.Gson
@@ -8,7 +32,6 @@ import cpw.mods.modlauncher.api.IEnvironment
 import groovy.transform.CompileStatic
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.fml.loading.FMLLoader
-import net.minecraftforge.versions.mcp.MCPVersion
 import org.apache.commons.codec.binary.Hex
 import org.slf4j.Logger
 
@@ -18,7 +41,6 @@ import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Executors
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 
@@ -37,50 +59,87 @@ class MappingsProvider {
     private static final String JOINED_PATH = "config/joined.tsrg"
     private static final Gson GSON = new GsonBuilder().setLenient().excludeFieldsWithoutExposeAnnotation().create()
 
-    final String version = Launcher.INSTANCE.environment().getProperty(IEnvironment.Keys.VERSION.get()).get()
+    final String version = FMLLoader.versionInfo().mcVersion()
     final Path gameDir = Launcher.INSTANCE.environment().getProperty(IEnvironment.Keys.GAMEDIR.get()).get()
-    final Path cacheDir = gameDir.resolve("aplp_cache")
-    final String mcpVersion = MCPVersion.getMCPVersion()
+    final Path cacheDir = gameDir.resolve("mod_data/austin")
+    final String mcpVersion = FMLLoader.versionInfo().mcpVersion()
     final String mcpConfigURL = "https://maven.minecraftforge.net/de/oceanlabs/mcp/mcp_config/${version}-${mcpVersion}/mcp_config-${version}-${mcpVersion}.zip"
 
     final CompletableFuture<LoadedMappings> mappingsProvider = new CompletableFuture<LoadedMappings>()
 
+    private boolean setup = false
+
     private MappingsProvider() {
     }
 
-    void startMappingsSetup() {
-        final URL url = new URL(PISTON_META)
-        try {
-            final URLConnection connection = url.openConnection()
-            connection.connect()
-            // Now, download and parse off-thread.
-            Executors.newSingleThreadExecutor({new Thread(it, MAPPINGS_THREAD)}).submit() {
-                try {
-                    InputStream manifestInput = connection.getInputStream()
-                    BufferedReader manifestReader = new BufferedReader(new InputStreamReader(manifestInput))
+    private Thread setupMappingsThread(Runnable runnable) {
+        Thread mappingsThread = new Thread(runnable, MAPPINGS_THREAD)
+        mappingsThread.setUncaughtExceptionHandler {t,e ->
+            LOGGER.error("Caught issue in setting up mappings...")
+            e.printStackTrace()
+            mappingsProvider.complete(null)
+        }
+        return mappingsThread
+    }
 
-                    ManifestMetaFile manifestMeta = GSON.fromJson(manifestReader, ManifestMetaFile)
+    synchronized void startMappingsSetup() {
+        if (!setup) {
+            setup = true
+            final URL url = new URL(PISTON_META)
+            try {
+                final URLConnection connection = url.openConnection()
+                connection.connect()
+                LOGGER.info("Starting runtime mappings setup...")
+                // Now, download and parse off-thread.
 
-                    ManifestMetaFile.VersionMeta versionMeta = manifestMeta.versions.findAll {it.id==this.version}.first()
+                Thread mappingsThread = setupMappingsThread {
+                    try {
+                        InputStream manifestInput = connection.getInputStream()
+                        BufferedReader manifestReader = new BufferedReader(new InputStreamReader(manifestInput))
 
-                    if (!Files.exists(cacheDir)) Files.createDirectories(cacheDir)
+                        ManifestMetaFile manifestMeta = GSON.fromJson(manifestReader, ManifestMetaFile)
 
-                    checkAndUpdateVersionFile(versionMeta)
-                    checkAndUpdateOfficialFile()
-                    checkAndUpdateMCPConfigFile()
-                    loadLayeredMappings()
-                } catch (IOException e) {
-                    // Error state, I couldn't make mappings.
-                } catch (NoSuchElementException e) {
-                    // Error state, not a known version? Huh?
+                        ManifestMetaFile.VersionMeta versionMeta = manifestMeta.versions.findAll { it.id == this.version }.first()
+
+                        if (!Files.exists(cacheDir)) Files.createDirectories(cacheDir)
+
+                        LOGGER.info("Found version metadata from piston-meta.")
+
+                        checkAndUpdateVersionFile(versionMeta)
+
+                        LOGGER.info("version.json is up to date.")
+
+                        checkAndUpdateOfficialFile()
+
+                        LOGGER.info("Official mappings are up to date.")
+
+                        checkAndUpdateMCPConfigFile()
+
+                        LOGGER.info("MCPConfig is up to date.")
+
+                        loadLayeredMappings()
+                        LOGGER.info("Finished runtime mappings setup.")
+                    } catch (IOException e) {
+                        // Error state, I couldn't make mappings.
+                        throw e
+                    } catch (NoSuchElementException e) {
+                        // Error state, not a known version? Huh?
+                        throw e
+                    }
                 }
+                mappingsThread.start()
+            } catch (IOException e) {
+                LOGGER.info("Couldn't connect to piston-meta. Looking for cached file instead.")
+                Thread mappingsThread = setupMappingsThread {
+                    loadLayeredMappings()
+                    LOGGER.info("Finished runtime mappings setup.")
+                }
+                mappingsThread.start()
             }
-        } catch (IOException e) {
-            // Couldn't connect to piston-meta. Looking for cached file instead.
         }
     }
 
-    private void loadLayeredMappings() {
+    private void loadLayeredMappings() throws IOException {
         Path zipPath = cacheDir.resolve(MCPCONFIG_ZIP)
         Path officialPath = cacheDir.resolve(OFFICIAL)
         try (ZipFile zip = new ZipFile(zipPath.toFile())
@@ -94,10 +153,11 @@ class MappingsProvider {
 
             officialParser.parse()
             // official class name, official -> srg
-            var methodsMap = new HashMap<String, Map<String,String>>()
+            var methodsMap = new HashMap<String, Map<String,List<String>>>()
             var fieldsMap = new HashMap<String, Map<String,String>>()
-            officialParser.classes.forEach {String obf, String official ->
-                var methods = new HashMap<String,String>()
+
+            officialParser.classes.forEach {String official, String obf ->
+                var methods = new HashMap<String,List<String>>()
                 var fields = new HashMap<String,String>()
 
                 var srgMethods = srgParser.methods.get(obf)
@@ -112,8 +172,8 @@ class MappingsProvider {
                 }
 
                 officialParser.methods.get(obf).forEach {mMoj, mObf ->
-                    var srg = srgMethods.get(mObf)
-                    if (srg == null) return
+                    var srg = mObf.collect {srgMethods.get(it)}
+                    if (srg == null || srg.isEmpty()) return
                     methods.put(mMoj,srg)
                 }
 
