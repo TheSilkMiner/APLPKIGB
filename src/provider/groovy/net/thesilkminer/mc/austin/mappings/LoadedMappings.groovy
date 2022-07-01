@@ -37,41 +37,40 @@ class LoadedMappings {
         this.methods = methods
         this.fields = fields
 
-        List<String> outQueue = new ArrayList<>()
-        methods.forEach((k,v) -> {
-            List<String> queue = new ArrayList<>()
-            v.forEach((off,srg) -> {
-                List<String> queueSrg = new ArrayList<>()
-                srg.forEach(a->{
-                    if (off==a) queueSrg.add(a)
-                })
-                queueSrg.forEach(a->srg.remove(a))
-                if (srg.isEmpty()) queue.add(off)
-            })
-            queue.forEach (it->v.remove(it))
-
-            if (v.isEmpty()) {
-                outQueue.add(k)
+        List<String> emptyRemovalQueue = []
+        methods.each (className,methodMap) -> {
+            List<String> noKnownMappingsRemovalQueue = []
+            methodMap.forEach(official,srg) -> {
+                List<String> unnecessaryRemovalQueue = []
+                srg.forEach (a)->{
+                    if (official==a) unnecessaryRemovalQueue.add(a)
+                }
+                unnecessaryRemovalQueue.each srg::remove
+                if (srg.isEmpty()) noKnownMappingsRemovalQueue.add(official)
             }
-        })
-        outQueue.forEach {methods.remove(it)}
+            noKnownMappingsRemovalQueue.each methodMap::remove
 
-        outQueue.clear()
-        fields.forEach((k,v) -> {
-            List<String> queue = new ArrayList<>()
-            v.forEach((off,srg) -> {
-                if (off==srg) queue.add(off)
+            if (methodMap.isEmpty()) {
+                emptyRemovalQueue.add(className)
+            }
+        }
+        emptyRemovalQueue.each methods::remove
+
+        emptyRemovalQueue.clear()
+        fields.forEach (className,fieldMap) -> {
+            List<String> unnecessaryRemovalQueue = []
+            fieldMap.forEach (official,srg) -> {
+                if (official==srg) unnecessaryRemovalQueue.add(official)
                 return
-            })
-            queue.forEach(it->v.remove(it))
-
-            if (v.isEmpty()) {
-                outQueue.add(k)
             }
-        })
-        outQueue.forEach {fields.remove(it)}
+            unnecessaryRemovalQueue.each fieldMap::remove
 
-        this.mappable = new HashSet<>(methods.keySet())
-        this.mappable.addAll(fields.keySet())
+            if (fieldMap.isEmpty()) {
+                emptyRemovalQueue.add(className)
+            }
+        }
+        emptyRemovalQueue.each fields::remove
+
+        this.mappable = methods.keySet() + fields.keySet()
     }
 }

@@ -66,7 +66,7 @@ class MappingMetaClassCreationHandle extends MetaClassRegistry.MetaClassCreation
             synchronized (MetaClassRegistry) {
                 Map<Class, MetaClass> queue = new Object2ObjectArrayMap<>()
                 for (def it : registry.iterator()) {
-                    if (it instanceof MetaClass) queue.put(it.theClass, instance.wrapMetaClass(it))
+                    if (it instanceof MetaClass) queue[it.theClass] = instance.wrapMetaClass(it)
                 }
                 queue.forEach {clazz, metaClazz ->
                     registry.setMetaClass(clazz, metaClazz)

@@ -72,7 +72,7 @@ class MappingMetaClass extends DelegatingMetaClass {
             if (this.methodMap!=null) {
                 // Check whether the method is in the mappables
                 // If it is, map it and invoke that method
-                List<String> mapped = this.methodMap.get(methodName)
+                List<String> mapped = this.methodMap[methodName]
                 if (mapped!=null) for (String possible : mapped) {
                     try {
                         return super.invokeMethod(object, possible, arguments)
@@ -91,7 +91,7 @@ class MappingMetaClass extends DelegatingMetaClass {
             if (this.methodMap!=null) {
                 // Check whether the method is in the mappables
                 // If it is, map it and invoke that method
-                List<String> mapped = this.methodMap.get(methodName)
+                List<String> mapped = this.methodMap[methodName]
                 if (mapped!=null) for (String possible : mapped) {
                     try {
                         return super.invokeMethod(object, possible, arguments)
@@ -110,7 +110,7 @@ class MappingMetaClass extends DelegatingMetaClass {
             if (this.methodMap!=null) {
                 // Check whether the method is in the mappables
                 // If it is, map it and invoke that method
-                List<String> mapped = this.methodMap.get(name)
+                List<String> mapped = this.methodMap[name]
                 if (mapped!=null) for (String possible : mapped) {
                     try {
                         return super.invokeMethod(possible, args)
@@ -129,7 +129,7 @@ class MappingMetaClass extends DelegatingMetaClass {
             if (this.methodMap!=null) {
                 // Check whether the method is in the mappables
                 // If it is, map it and invoke that method
-                List<String> mapped = this.methodMap.get(methodName)
+                List<String> mapped = this.methodMap[methodName]
                 if (mapped!=null) for (String possible : mapped) {
                     try {
                         return super.invokeMethod(sender, receiver, methodName, arguments, isCallToSuper, fromInsideClass)
@@ -148,7 +148,7 @@ class MappingMetaClass extends DelegatingMetaClass {
             if (this.fieldMap!=null) {
                 // Check whether the field is in the mappables
                 // If it is, map it and invoke that method
-                String mapped = this.fieldMap.get(messageName)
+                String mapped = this.fieldMap[messageName]
                 if (mapped!=null) super.setProperty(sender, receiver, mapped, messageValue, useSuper, fromInsideClass)
                 return
             }
@@ -164,7 +164,7 @@ class MappingMetaClass extends DelegatingMetaClass {
             if (this.fieldMap!=null) {
                 // Check whether the field is in the mappables
                 // If it is, map it and invoke that method
-                String mapped = this.fieldMap.get(property)
+                String mapped = this.fieldMap[property]
                 if (mapped!=null) super.setProperty(object, mapped, newValue)
                 return
             }
@@ -180,7 +180,7 @@ class MappingMetaClass extends DelegatingMetaClass {
             if (this.fieldMap!=null) {
                 // Check whether the field is in the mappables
                 // If it is, map it and invoke that method
-                String mapped = this.fieldMap.get(propertyName)
+                String mapped = this.fieldMap[propertyName]
                 if (mapped!=null) super.setProperty(mapped, newValue)
                 return
             }
@@ -196,7 +196,7 @@ class MappingMetaClass extends DelegatingMetaClass {
             if (this.fieldMap!=null) {
                 // Check whether the field is in the mappables
                 // If it is, map it and invoke that method
-                String mapped = this.fieldMap.get(messageName)
+                String mapped = this.fieldMap[messageName]
                 if (mapped!=null) return super.getProperty(sender,receiver,mapped,useSuper,fromInsideClass)
             }
             throw e
@@ -211,7 +211,7 @@ class MappingMetaClass extends DelegatingMetaClass {
             if (this.fieldMap!=null) {
                 // Check whether the field is in the mappables
                 // If it is, map it and invoke that method
-                String mapped = this.fieldMap.get(propertyName)
+                String mapped = this.fieldMap[propertyName]
                 if (mapped!=null) return super.getProperty(mapped)
             }
             throw e
@@ -226,7 +226,7 @@ class MappingMetaClass extends DelegatingMetaClass {
             if (this.fieldMap!=null) {
                 // Check whether the field is in the mappables
                 // If it is, map it and invoke that method
-                String mapped = this.fieldMap.get(property)
+                String mapped = this.fieldMap[property]
                 if (mapped!=null) return super.getProperty(object, mapped)
             }
             throw e
@@ -241,7 +241,7 @@ class MappingMetaClass extends DelegatingMetaClass {
             if (this.fieldMap!=null) {
                 // Check whether the field is in the mappables
                 // If it is, map it and invoke that method
-                String mapped = this.fieldMap.get(attribute)
+                String mapped = this.fieldMap[attribute]
                 if (mapped!=null) return super.getAttribute(object, mapped)
             }
             throw e
@@ -256,7 +256,7 @@ class MappingMetaClass extends DelegatingMetaClass {
             if (this.fieldMap!=null) {
                 // Check whether the field is in the mappables
                 // If it is, map it and invoke that method
-                String mapped = this.fieldMap.get(messageName)
+                String mapped = this.fieldMap[messageName]
                 if (mapped!=null) return super.getAttribute(sender, receiver, mapped, useSuper)
             }
             throw e
@@ -271,7 +271,7 @@ class MappingMetaClass extends DelegatingMetaClass {
             if (this.fieldMap!=null) {
                 // Check whether the field is in the mappables
                 // If it is, map it and invoke that method
-                String mapped = this.fieldMap.get(attribute)
+                String mapped = this.fieldMap[attribute]
                 if (mapped!=null) super.setAttribute(object, mapped, newValue)
                 return
             }
@@ -288,7 +288,7 @@ class MappingMetaClass extends DelegatingMetaClass {
             if (this.fieldMap!=null) {
                 // Check whether the field is in the mappables
                 // If it is, map it and invoke that method
-                String mapped = this.fieldMap.get(messageName)
+                String mapped = this.fieldMap[messageName]
                 if (mapped!=null) super.setAttribute(sender, receiver, mapped, messageValue, useSuper, fromInsideClass)
                 return
             }
@@ -322,7 +322,7 @@ class MappingMetaClass extends DelegatingMetaClass {
                 MetaMethod setter = getMetaMethod(setterName, fieldType)
                 MetaBeanProperty property = new MetaBeanProperty(field, fieldType, getter, setter)
                 property.setField(new CachedField(fieldReflective))
-                this.metaProperties.put(field, property)
+                this.metaProperties[field] = property
             }
             return
         }
@@ -335,7 +335,7 @@ class MappingMetaClass extends DelegatingMetaClass {
                         String setterName = MetaProperty.getSetterName(fieldName)
                         MetaMethod setter = getMetaMethod(setterName, getter.getReturnType())
                         MetaBeanProperty property = new MetaBeanProperty(fieldName, getter.getReturnType(), getter, setter)
-                        this.metaProperties.put(fieldName, property)
+                        this.metaProperties[fieldName] = property
                     }
                 }
             }
@@ -352,7 +352,7 @@ class MappingMetaClass extends DelegatingMetaClass {
         MetaMethod old = super.getMetaMethod(name, args)
         if (old != null) return old
 
-        List<String> methods = this.methodMap.get(name)
+        List<String> methods = this.methodMap[name]
         if (methods==null) methods = []
 
         return methods.stream().map(it->super.getMetaMethod(it, args))
