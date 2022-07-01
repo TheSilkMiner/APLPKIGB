@@ -45,16 +45,16 @@ class LoadedMappings {
                 srg.forEach (a)->{
                     if (official==a) unnecessaryRemovalQueue.add(a)
                 }
-                unnecessaryRemovalQueue.each srg::remove
+                unnecessaryRemovalQueue.each {srg.remove it}
                 if (srg.isEmpty()) noKnownMappingsRemovalQueue.add(official)
             }
-            noKnownMappingsRemovalQueue.each methodMap::remove
+            noKnownMappingsRemovalQueue.each {methodMap.remove it}
 
             if (methodMap.isEmpty()) {
                 emptyRemovalQueue.add(className)
             }
         }
-        emptyRemovalQueue.each methods::remove
+        emptyRemovalQueue.each {methods.remove it}
 
         emptyRemovalQueue.clear()
         fields.forEach (className,fieldMap) -> {
@@ -63,13 +63,13 @@ class LoadedMappings {
                 if (official==srg) unnecessaryRemovalQueue.add(official)
                 return
             }
-            unnecessaryRemovalQueue.each fieldMap::remove
+            unnecessaryRemovalQueue.each {fieldMap.remove it}
 
             if (fieldMap.isEmpty()) {
                 emptyRemovalQueue.add(className)
             }
         }
-        emptyRemovalQueue.each fields::remove
+        emptyRemovalQueue.each {fields.remove it}
 
         this.mappable = methods.keySet() + fields.keySet()
     }

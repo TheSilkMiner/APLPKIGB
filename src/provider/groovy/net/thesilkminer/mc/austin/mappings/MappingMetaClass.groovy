@@ -31,6 +31,7 @@ import org.codehaus.groovy.reflection.GeneratedMetaMethod
 import org.codehaus.groovy.runtime.MetaClassHelper
 
 import java.lang.reflect.Field
+import java.lang.reflect.Method
 
 @CompileStatic
 class MappingMetaClass extends DelegatingMetaClass {
@@ -44,6 +45,11 @@ class MappingMetaClass extends DelegatingMetaClass {
         super(delegate)
         this.fieldMap = mappings.fields.getOrDefault(theClass.name, new HashMap<>())
         this.methodMap = mappings.methods.getOrDefault(theClass.name, new HashMap<>())
+    }
+
+    @Override
+    void initialize() {
+        super.initialize()
         setupProperties()
     }
 
@@ -325,20 +331,28 @@ class MappingMetaClass extends DelegatingMetaClass {
                 MetaMethod setter = getMetaMethod(setterName, fieldType)
                 MetaBeanProperty property = new MetaBeanProperty(fieldName, fieldType, getter, setter)
                 property.setField(new CachedField(field))
-                this.metaProperties[fieldName] = property
+                metaProperties[fieldName] = property
             }
             return
         }
         methodMap.forEach (method, srgMethods) -> {
             if (method.startsWith("is") || method.startsWith("get")) {
                 String fieldName = BeanUtils.decapitalize(method.replaceFirst(/is|get/,''))
+                if (fieldName.isEmpty()) return
                 if (!this.metaProperties.containsKey(fieldName) && !known.contains(fieldName)) {
-                    MetaMethod getter = getMetaMethod(method)
-                    if (getter !== null && (method.startsWith("is") ^ getter.getReturnType()!=Boolean.TYPE)) {
+                    //MetaMethod getter = getMetaMethod(method)
+                    Method getter = null
+                    srgMethods.each {
+                        try {
+                            getter = theClass.getMethod(it)
+                        } catch (NoSuchMethodException ignored) {}
+                    }
+                    if (getter !== null && (method.startsWith("get") ^ getter.getReturnType()===Boolean.TYPE)) {
                         String setterName = MetaProperty.getSetterName(fieldName)
                         MetaMethod setter = getMetaMethod(setterName, getter.getReturnType())
-                        MetaBeanProperty property = new MetaBeanProperty(fieldName, getter.getReturnType(), getter, setter)
-                        this.metaProperties[fieldName] = property
+                        MetaMethod metaGetter = getMetaMethod(method)
+                        MetaBeanProperty property = new MetaBeanProperty(fieldName, getter.getReturnType(), metaGetter, setter)
+                        metaProperties[fieldName] = property
                     }
                 }
             }
@@ -375,7 +389,7 @@ class MappingMetaClass extends DelegatingMetaClass {
                 it.value.contains(srg)
             }
             if (official !== null) {
-                GeneratedMetaMethod newMethod = new GeneratedMetaMethod(official, it.declaringClass, it.returnType, it.parameterTypes.theClass.toArray() as Class[]) {
+                GeneratedMetaMethod newMethod = new GeneratedMetaMethod(official, it.declaringClass, it.returnType, it.parameterTypes*.theClass as Class[]) {
                     @Override
                     Object invoke(Object object, Object[] arguments) {
                         return it.invoke(object, arguments)
