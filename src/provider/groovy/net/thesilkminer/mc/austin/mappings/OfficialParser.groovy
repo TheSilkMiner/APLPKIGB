@@ -94,7 +94,7 @@ class OfficialParser implements Closeable {
                     var value = list.get(i)
                     value = value.replaceAll(/L(.*?);/) { String all, String officialName ->
                         String obfName = classes.get(officialName.replace('/','.'))
-                        if (obfName == null) return all
+                        if (obfName === null) return all
                         return 'L'+obfName+';'
                     }
                     list.set(i, value)

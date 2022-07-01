@@ -163,17 +163,17 @@ class MappingsProvider {
                 var srgMethods = srgParser.methods.get(obf)
                 var srgFields = srgParser.fields.get(obf)
 
-                if (srgFields==null || srgMethods==null) return
+                if (srgFields===null || srgMethods===null) return
 
                 officialParser.fields.get(obf).forEach {fMoj, fObf ->
                     var srg = srgFields.get(fObf)
-                    if (srg == null) return
+                    if (srg === null) return
                     fields.put(fMoj,srg)
                 }
 
                 officialParser.methods.get(obf).forEach {mMoj, mObf ->
                     var srg = mObf.collect {srgMethods.get(it)}
-                    if (srg == null || srg.isEmpty()) return
+                    if (srg === null || srg.isEmpty()) return
                     methods.put(mMoj,srg)
                 }
 

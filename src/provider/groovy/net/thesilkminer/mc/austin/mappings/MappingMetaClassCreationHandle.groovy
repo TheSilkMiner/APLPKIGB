@@ -59,7 +59,7 @@ class MappingMetaClassCreationHandle extends MetaClassRegistry.MetaClassCreation
             Class groovySystem = Class.forName(GROOVY_SYSTEM, true, loader)
             MetaClassRegistry registry = groovySystem.getMethod("getMetaClassRegistry").invoke(null) as MetaClassRegistry
 
-            if (mappings == null) throw new IllegalArgumentException("Found uninitialized runtime mappings!")
+            if (mappings === null) throw new IllegalArgumentException("Found uninitialized runtime mappings!")
             hasWrapped = true
             var instance = new MappingMetaClassCreationHandle(mappings)
             registry.metaClassCreationHandle = instance
