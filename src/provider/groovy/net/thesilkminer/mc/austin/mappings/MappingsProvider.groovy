@@ -99,7 +99,7 @@ class MappingsProvider {
 
                         ManifestMetaFile manifestMeta = GSON.fromJson(manifestReader, ManifestMetaFile)
 
-                        ManifestMetaFile.VersionMeta versionMeta = manifestMeta.versions.findAll { it.id == this.version }.first()
+                        ManifestMetaFile.VersionMeta versionMeta = manifestMeta.versions.find { it.id == this.version }
 
                         if (!Files.exists(cacheDir)) Files.createDirectories(cacheDir)
 

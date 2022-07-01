@@ -27,6 +27,7 @@ package net.thesilkminer.mc.austin.mappings
 import groovy.transform.CompileStatic
 import org.apache.groovy.util.BeanUtils
 import org.codehaus.groovy.reflection.CachedField
+import org.codehaus.groovy.reflection.GeneratedMetaMethod
 
 import java.lang.reflect.Field
 
@@ -357,5 +358,60 @@ class MappingMetaClass extends DelegatingMetaClass {
 
         return methods.stream().map(it->super.getMetaMethod(it, args))
                 .filter(it->it!=null).findFirst().orElse(null)
+    }
+
+    @Override
+    List<MetaMethod> getMethods() {
+        return expandMethods(super.getMethods())
+    }
+
+    private List<MetaMethod> expandMethods(List<MetaMethod> methods) {
+        List<MetaMethod> namedMethods = []
+        methods.each {
+            String srg = it.name
+            String official = this.methodMap.find {
+                it.value.contains(srg)
+            }
+            if (official != null) {
+                GeneratedMetaMethod newMethod = new GeneratedMetaMethod(official, it.declaringClass, it.returnType, it.parameterTypes.theClass.toArray() as Class[]) {
+                    @Override
+                    Object invoke(Object object, Object[] arguments) {
+                        return it.invoke(object, arguments)
+                    }
+                }
+                namedMethods += newMethod
+            }
+        }
+
+        return methods + namedMethods
+    }
+
+    @Override
+    MetaMethod getStaticMetaMethod(String name, Object[] args) {
+        MetaMethod old = super.getStaticMetaMethod(name, args)
+        if (old != null) return old
+
+        List<String> methods = this.methodMap[name]
+        if (methods==null) methods = []
+
+        return methods.stream().map(it->super.getStaticMetaMethod(it, args))
+                .filter(it->it!=null).findFirst().orElse(null)
+    }
+
+    @Override
+    MetaMethod getStaticMetaMethod(String name, Class[] argTypes) {
+        MetaMethod old = super.getStaticMetaMethod(name, argTypes)
+        if (old != null) return old
+
+        List<String> methods = this.methodMap[name]
+        if (methods==null) methods = []
+
+        return methods.stream().map(it->super.getStaticMetaMethod(it, argTypes))
+                .filter(it->it!=null).findFirst().orElse(null)
+    }
+
+    @Override
+    List<MetaMethod> getMetaMethods() {
+        return expandMethods(super.getMetaMethods())
     }
 }
