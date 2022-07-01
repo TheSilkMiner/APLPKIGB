@@ -28,6 +28,7 @@ import groovy.transform.CompileStatic
 import org.apache.groovy.util.BeanUtils
 import org.codehaus.groovy.reflection.CachedField
 import org.codehaus.groovy.reflection.GeneratedMetaMethod
+import org.codehaus.groovy.runtime.MetaClassHelper
 
 import java.lang.reflect.Field
 
@@ -307,30 +308,31 @@ class MappingMetaClass extends DelegatingMetaClass {
     }
 
     private void setupProperties() {
+        Set<String> known = super.getProperties().each {it.name}.<String>toSet()
         this.metaProperties.clear()
-        fieldMap.forEach (field, srgField) -> {
-            Field fieldReflective;
+        fieldMap.forEach (fieldName, srgFieldName) -> {
+            Field field;
             try {
-                fieldReflective = this.theClass.getField(srgField)
+                field = this.theClass.getField(srgFieldName)
             } catch (NoSuchFieldException ignored) {
-                fieldReflective = null
+                field = null
             }
-            if (fieldReflective != null) {
-                Class fieldType = fieldReflective.type
-                String getterName = MetaProperty.getGetterName(field, fieldType)
-                String setterName = MetaProperty.getGetterName(field, fieldType)
+            if (field != null && !known.contains(fieldName)) {
+                Class fieldType = field.type
+                String getterName = MetaProperty.getGetterName(fieldName, fieldType)
+                String setterName = MetaProperty.getGetterName(fieldName, fieldType)
                 MetaMethod getter = getMetaMethod(getterName)
                 MetaMethod setter = getMetaMethod(setterName, fieldType)
-                MetaBeanProperty property = new MetaBeanProperty(field, fieldType, getter, setter)
-                property.setField(new CachedField(fieldReflective))
-                this.metaProperties[field] = property
+                MetaBeanProperty property = new MetaBeanProperty(fieldName, fieldType, getter, setter)
+                property.setField(new CachedField(field))
+                this.metaProperties[fieldName] = property
             }
             return
         }
         methodMap.forEach (method, srgMethods) -> {
             if (method.startsWith("is") || method.startsWith("get")) {
                 String fieldName = BeanUtils.decapitalize(method.replaceFirst(/is|get/,''))
-                if (!this.metaProperties.containsKey(fieldName)) {
+                if (!this.metaProperties.containsKey(fieldName) && !known.contains(fieldName)) {
                     MetaMethod getter = getMetaMethod(method)
                     if (getter != null && (method.startsWith("is") ^ getter.getReturnType()!=Boolean.TYPE)) {
                         String setterName = MetaProperty.getSetterName(fieldName)
@@ -413,5 +415,32 @@ class MappingMetaClass extends DelegatingMetaClass {
     @Override
     List<MetaMethod> getMetaMethods() {
         return expandMethods(super.getMetaMethods())
+    }
+
+    @Override
+    MetaProperty hasProperty(Object obj, String name) {
+        MetaProperty old = super.hasProperty(obj, name)
+        if (old != null) return old
+        return getMetaProperty(name)
+    }
+
+    @Override
+    List<MetaMethod> respondsTo(Object obj, String name) {
+        List<MetaMethod> old = super.respondsTo(obj, name)
+        if (!old.isEmpty()) return old
+        return getMetaMethods().findAll {it.name == name}
+    }
+
+    @Override
+    List<MetaMethod> respondsTo(Object obj, String name, Object[] argTypes) {
+        List<MetaMethod> old = super.respondsTo(obj, name, argTypes)
+        if (!old.isEmpty()) return old
+
+        Class[] classes = MetaClassHelper.castArgumentsToClassArray(argTypes);
+        MetaMethod m = getMetaMethod(name, classes)
+        if (m != null) {
+            return Collections.singletonList(m)
+        }
+        return Collections.emptyList()
     }
 }
