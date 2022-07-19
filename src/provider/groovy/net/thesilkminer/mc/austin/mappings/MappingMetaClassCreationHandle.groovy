@@ -42,19 +42,33 @@ class MappingMetaClassCreationHandle extends MetaClassRegistry.MetaClassCreation
 
     @Override
     protected MetaClass createNormalMetaClass(Class theClass, MetaClassRegistry registry) {
-        return wrapMetaClass(super.createNormalMetaClass(theClass, registry))
+        MetaClass delegate = super.createNormalMetaClass(theClass, registry)
+        MetaClass wrapped = wrapMetaClass(delegate)
+        return wrapped === null ? delegate : wrapped
     }
 
-    MetaClass wrapMetaClass(MetaClass delegated) {
-        if (mappings.mappable.contains(delegated.theClass.name)) {
+    private MappingMetaClass wrapMetaClass(MetaClass delegated) {
+        if (shouldWrap(delegated.theClass)) {
             // Check if the class is in the remapping key set
             return new MappingMetaClass(delegated, mappings)
         }
-        return delegated
+        return null
+    }
+
+    private shouldWrap(Class clazz) {
+        if (clazz==null)
+            return false
+        if (mappings.mappable.contains(clazz.name))
+            return true
+        if (shouldWrap(clazz.superclass))
+            return true
+        for (Class aClass : clazz.interfaces) {
+            if (shouldWrap(aClass))
+                return true
+        }
     }
 
     static synchronized applyCreationHandle(LoadedMappings mappings, ClassLoader loader) {
-
         if (!hasWrapped) {
             Class groovySystem = Class.forName(GROOVY_SYSTEM, true, loader)
             MetaClassRegistry registry = groovySystem.getMethod("getMetaClassRegistry").invoke(null) as MetaClassRegistry
@@ -66,7 +80,11 @@ class MappingMetaClassCreationHandle extends MetaClassRegistry.MetaClassCreation
             synchronized (MetaClassRegistry) {
                 Map<Class, MetaClass> queue = new Object2ObjectArrayMap<>()
                 for (def it : registry.iterator()) {
-                    if (it instanceof MetaClass) queue[it.theClass] = instance.wrapMetaClass(it)
+                    if (it instanceof MetaClass) {
+                        MetaClass wrapped = instance.wrapMetaClass(it)
+                        if (wrapped !== null)
+                            queue[it.theClass] = wrapped
+                    }
                 }
                 queue.forEach {clazz, metaClazz ->
                     registry.setMetaClass(clazz, metaClazz)

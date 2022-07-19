@@ -43,8 +43,33 @@ class MappingMetaClass extends DelegatingMetaClass {
 
     MappingMetaClass(MetaClass delegate, LoadedMappings mappings) {
         super(delegate)
-        this.fieldMap = mappings.fields.getOrDefault(theClass.name, new HashMap<>())
-        this.methodMap = mappings.methods.getOrDefault(theClass.name, new HashMap<>())
+        Map<String, String> fields = new HashMap<>()
+        Map<String, List<String>> methods = new HashMap<>()
+
+        this.fieldMap = getFields(mappings, theClass)
+        this.methodMap = getMethods(mappings, theClass)
+    }
+
+    protected static Map<String, String> getFields(LoadedMappings mappings, Class clazz) {
+        if (clazz==null)
+            return Map.of()
+        var fields = mappings.fields.getOrDefault(clazz.name, new HashMap<>())
+        fields += getFields(mappings, clazz.superclass)
+        for (Class aClass : clazz.interfaces) {
+            fields += getFields(mappings, aClass)
+        }
+        return fields
+    }
+
+    protected static Map<String, List<String>> getMethods(LoadedMappings mappings, Class clazz) {
+        if (clazz==null)
+            return Map.of()
+        var methods = mappings.methods.getOrDefault(clazz.name, new HashMap<>())
+        methods += getMethods(mappings, clazz.superclass)
+        for (Class aClass : clazz.interfaces) {
+            methods += getMethods(mappings, aClass)
+        }
+        return methods
     }
 
     @Override
