@@ -24,16 +24,16 @@
 
 package net.thesilkminer.mc.austin
 
-import groovy.transform.CompileDynamic
-import groovy.transform.CompileStatic
-import groovy.transform.MapConstructor
-import groovy.transform.PackageScope
-import groovy.transform.VisibilityOptions
+
+import groovy.transform.*
 import groovy.transform.options.Visibility
 import net.minecraftforge.fml.Logging
+import net.minecraftforge.fml.loading.FMLEnvironment
 import net.minecraftforge.forgespi.language.IModInfo
 import net.minecraftforge.forgespi.language.IModLanguageProvider
 import net.minecraftforge.forgespi.language.ModFileScanData
+import net.thesilkminer.mc.austin.mappings.MappingMetaClassCreationHandle
+import net.thesilkminer.mc.austin.mappings.MappingsProvider
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
@@ -61,6 +61,11 @@ final class MojoLanguageLoader implements IModLanguageProvider.IModLanguageLoade
         // cpw and his love for over-complicated stuff
         // oh well, let's have neat class-loader separation
         def threadLoader = Thread.currentThread().getContextClassLoader()
+
+        if (FMLEnvironment.production) {
+            // Only load this while in production; no need to cause potentially unexpected behavior in dev.
+            MappingMetaClassCreationHandle.applyCreationHandle(MappingsProvider.INSTANCE.mappingsProvider.get(), threadLoader)
+        }
 
         // GroovyAssignabilityChecks are suppressed because they are actually throwables at runtime
         def throwModLoadingException = { String stage, Throwable cause, String message ->
